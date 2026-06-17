@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>NOIRÉ | Solid Perfume</title>
+<title>LOR’ | Solid Perfume</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
 
@@ -13,21 +15,45 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Georgia,serif;
+font-family:'Playfair Display', serif;
 }
 
 body{
-background:#050505;
+background:#000;
 color:#fff;
 overflow-x:hidden;
 }
 
+/* ===== INTRO ===== */
+#intro{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:9999;
+animation:fadeOut 3s ease 2.5s forwards;
+}
 
-.gold{
+#intro h1{
+font-size:80px;
+letter-spacing:20px;
 color:#d4af37;
+opacity:0;
+animation:fadeIn 2s ease forwards;
+}
+
+@keyframes fadeIn{
+to{opacity:1; transform:scale(1.05);}
+}
+
+@keyframes fadeOut{
+to{opacity:0; visibility:hidden;}
 }
 
 
+/* ===== NAV ===== */
 nav{
 position:fixed;
 top:0;
@@ -35,618 +61,372 @@ width:100%;
 padding:25px 8%;
 display:flex;
 justify-content:space-between;
-z-index:99;
-background:#0008;
-backdrop-filter:blur(15px);
+z-index:100;
+backdrop-filter:blur(20px);
+background:rgba(0,0,0,0.4);
 }
 
-
 .logo{
-font-size:30px;
+color:#d4af37;
 letter-spacing:8px;
+font-size:26px;
+}
+
+nav a{
+color:#fff;
+text-decoration:none;
+margin-left:25px;
+opacity:.7;
+transition:.3s;
+}
+
+nav a:hover{
+opacity:1;
 color:#d4af37;
 }
 
-
-nav a{
-color:white;
-text-decoration:none;
-margin-left:25px;
-}
-
-
-
-
+/* ===== HERO ===== */
 .hero{
-
 height:100vh;
 display:flex;
 align-items:center;
+justify-content:space-between;
 padding:0 8%;
-
 background:
-radial-gradient(circle,#4b3800,transparent 35%),
+radial-gradient(circle at center,#1a1400,transparent 40%),
 #000;
-
 }
 
-
-.hero h1{
-
-font-size:90px;
-letter-spacing:12px;
-
+.hero-text{
+max-width:50%;
 }
 
-
-.hero p{
-
-color:#aaa;
-font-size:22px;
-margin:30px 0;
-
+.hero-text h2{
+font-size:70px;
+letter-spacing:10px;
 }
 
+.hero-text span{
+color:#d4af37;
+}
+
+.hero-text p{
+margin-top:20px;
+font-size:20px;
+opacity:.7;
+line-height:1.6;
+}
 
 .btn{
-
 display:inline-block;
+margin-top:30px;
+padding:15px 40px;
 background:#d4af37;
 color:#000;
-padding:18px 45px;
 border-radius:50px;
-font-weight:bold;
 cursor:pointer;
-text-decoration:none;
-
+font-weight:bold;
+transition:.3s;
 }
 
-
-.visual{
-
-width:50%;
-text-align:center;
-
+.btn:hover{
+transform:scale(1.05);
 }
 
-
-.visual img{
-
-width:380px;
+/* floating product */
+.product{
+width:350px;
 filter:drop-shadow(0 0 60px #d4af37);
-animation:float 4s infinite;
-
+animation:float 5s ease-in-out infinite;
 }
-
-
 
 @keyframes float{
-
-50%{
-transform:translateY(-25px)
+50%{transform:translateY(-25px);}
 }
 
-}
-
-
-
-
-
+/* ===== FEATURES ===== */
 .features{
-
-display:flex;
-gap:25px;
-padding:80px 8%;
-}
-
-
-.box{
-
-flex:1;
-padding:40px;
-background:#111;
-border:1px solid #333;
-border-radius:25px;
-text-align:center;
-
-transition:.4s;
-
-}
-
-
-.box:hover{
-
-transform:translateY(-15px);
-border-color:#d4af37;
-
-}
-
-
-
-
-
-
-
-.product{
-
 padding:100px 8%;
 display:flex;
+justify-content:space-between;
+gap:20px;
+}
+
+.card{
+flex:1;
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(212,175,55,0.2);
+padding:40px;
+border-radius:20px;
+text-align:center;
+transition:.4s;
+}
+
+.card:hover{
+transform:translateY(-15px);
+border-color:#d4af37;
+}
+
+/* ===== PRODUCT ===== */
+.shop{
+padding:120px 8%;
+display:flex;
 align-items:center;
-gap:50px;
-
+gap:60px;
 }
 
-
-
-.product img{
-
-width:420px;
-
+.shop img{
+width:400px;
+filter:drop-shadow(0 0 70px #d4af37);
 }
 
-
-
-.info h2{
-
+.info h1{
 font-size:45px;
-
 }
-
-
 
 .price{
-
-font-size:45px;
+font-size:40px;
 color:#d4af37;
 margin:20px 0;
-
 }
 
-
-
-input,select{
-
-padding:15px;
+select,input{
+width:100%;
+padding:14px;
+margin:8px 0;
 background:#111;
-border:1px solid #555;
-color:white;
-margin:5px;
+border:1px solid #333;
+color:#fff;
 border-radius:10px;
-
 }
-
 
 .qty{
-
-font-size:22px;
-margin:20px 0;
-
+display:flex;
+align-items:center;
+gap:10px;
+margin:15px 0;
 }
 
+.qty button{
+padding:10px 15px;
+background:#d4af37;
+border:none;
+cursor:pointer;
+}
 
-
+/* ===== STORY ===== */
 .story{
-
-height:450px;
-
+height:400px;
 display:flex;
 align-items:center;
 justify-content:center;
 text-align:center;
-
 background:
-linear-gradient(#0009,#0009),
+linear-gradient(#000c,#000c),
 url("https://images.unsplash.com/photo-1594035910387-fea47794261f");
-
 background-size:cover;
-
 }
-
-
 
 .story h2{
-
-font-size:55px;
-
+font-size:50px;
+letter-spacing:5px;
 }
 
-
-
-
-.reviews{
-
-padding:80px 8%;
-
+/* ===== FINAL ===== */
+.final{
+padding:120px 8%;
+text-align:center;
 }
 
-
-
-.review{
-
-background:#111;
-padding:30px;
-margin:20px;
-border-radius:20px;
-
+.final h2{
+font-size:60px;
+color:#d4af37;
 }
 
-
-
-
+/* ===== FOOTER ===== */
 footer{
-
 padding:40px;
 text-align:center;
-color:#777;
-
+opacity:.6;
+border-top:1px solid #222;
 }
 
+@media(max-width:900px){
 
-@media(max-width:800px){
-
-.hero,
-.product{
-
+.hero{
 flex-direction:column;
 text-align:center;
-
+padding-top:120px;
 }
 
-
-.hero h1{
-
-font-size:55px;
-
+.hero-text{
+max-width:100%;
 }
-
-
-.visual img,
-.product img{
-
-width:280px;
-
-}
-
 
 .features{
-
 flex-direction:column;
+}
 
+.shop{
+flex-direction:column;
+text-align:center;
 }
 
 }
 
 </style>
-
 </head>
-
 
 <body>
 
+<!-- INTRO -->
+<div id="intro">
+<h1>LOR’</h1>
+</div>
 
+<!-- NAV -->
 <nav>
-
-<div class="logo">
-NOIRÉ
-</div>
-
-
+<div class="logo">LOR’</div>
 <div>
-
-<a href="#">HOME</a>
-<a href="#">SHOP</a>
-<a href="#">STORY</a>
-
+<a href="#shop">SHOP</a>
+<a href="#story">STORY</a>
+<a href="#final">SIGNATURE</a>
 </div>
-
 </nav>
 
-
-
-
-
+<!-- HERO -->
 <section class="hero">
 
-
-<div>
-
-<h1>
-
-SOLID
-<br>
-
-<span class="gold">
-PERFUME
-</span>
-
-</h1>
-
+<div class="hero-text">
+<h2>
+SOLID<br>
+<span>PERFUME</span>
+</h2>
 
 <p>
-A luxury fragrance experience
-crafted for your skin.
+Not a fragrance.<br>
+A presence that stays with you.
 </p>
 
-
-<a class="btn">
-ENTER COLLECTION
-</a>
-
-
+<div class="btn" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
+ENTER EXPERIENCE
+</div>
 </div>
 
-
-
-<div class="visual">
-
-<img src="https://i.imgur.com/8Km9tLL.png">
-
-</div>
-
+<img class="product" src="https://i.imgur.com/8Km9tLL.png">
 
 </section>
 
-
-
-
-
-
-
+<!-- FEATURES -->
 <section class="features">
 
-
-<div class="box">
-<h2>12H</h2>
-<p>Long Lasting</p>
+<div class="card">
+<h3>12H+</h3>
+<p>Long Lasting Presence</p>
 </div>
 
-
-<div class="box">
-<h2>PURE</h2>
-<p>Premium Formula</p>
+<div class="card">
+<h3>PURE</h3>
+<p>Skin Safe Luxury Formula</p>
 </div>
 
-
-<div class="box">
-<h2>LUXURY</h2>
-<p>Made To Impress</p>
+<div class="card">
+<h3>LUXE</h3>
+<p>Pocket Signature Experience</p>
 </div>
-
 
 </section>
 
-
-
-
-
-
-
-<section class="product">
-
+<!-- SHOP -->
+<section class="shop" id="shop">
 
 <img src="https://i.imgur.com/8Km9tLL.png">
-
 
 <div class="info">
 
+<h1>LOR’ SIGNATURE</h1>
 
-<h2>
-NOIRÉ SIGNATURE
-</h2>
+<div class="price" id="price">23 JD</div>
 
-
-<p>
-The new generation of perfume.
-</p>
-
-
-<div class="price" id="price">
-23 JD
-</div>
-
-
-
-<select id="gender">
-
-<option>
-For Men
-</option>
-
-<option>
-For Women
-</option>
-
+<select>
+<option>For Men</option>
+<option>For Women</option>
 </select>
 
-
-<br>
-
-
 <div class="qty">
-
-Quantity:
-
-<button onclick="change(-1)">
--
-</button>
-
-
-<span id="count">
-1
-</span>
-
-
-<button onclick="change(1)">
-+
-</button>
-
-
+<button onclick="change(-1)">-</button>
+<span id="qty">1</span>
+<button onclick="change(1)">+</button>
 </div>
 
+<input id="name" placeholder="Your Name">
+<input id="phone" placeholder="Phone Number">
 
-
-<input id="name" placeholder="Name">
-
-<input id="phone" placeholder="Phone">
-
-
-<br>
-
-
-<button class="btn" onclick="buy()">
-
-BUY NOW
-
-</button>
-
+<div class="btn" onclick="order()">BUY NOW</div>
 
 </div>
-
 
 </section>
 
-
-
-
-
-
-
-<section class="story">
-
-
+<!-- STORY -->
+<section class="story" id="story">
 <h2>
+YOU DON’T WEAR LOR’<br>
+YOU BECOME IT
+</h2>
+</section>
 
-Not A Perfume.
-<br>
-
-Your Identity.
-
+<!-- FINAL -->
+<section class="final" id="final">
+<h2>
+THIS IS NOT PERFUME.<br>
+THIS IS YOUR SIGNATURE.
 </h2>
 
-
+<div class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+ENTER AGAIN
+</div>
 </section>
 
-
-
-
-
-
-
-<section class="reviews">
-
-
-<h1>
-Customer Love
-</h1>
-
-
-<div class="review">
-
-★★★★★
-
-"Luxury feeling from the first use."
-
-</div>
-
-
-<div class="review">
-
-★★★★★
-
-"The smell stays all day."
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
+<!-- FOOTER -->
 <footer>
-
-NOIRÉ © 2026
-
-<br>
-
-Luxury Solid Perfume
-
+© 2026 LOR’ — Luxury Solid Perfume
 </footer>
-
-
-
-
-
 
 <script>
 
-
-let qty=1;
-
+let qty = 1;
 
 function change(x){
+qty += x;
+if(qty < 1) qty = 1;
 
-qty+=x;
+document.getElementById("qty").innerText = qty;
 
-if(qty<1) qty=1;
+let price = 23;
+if(qty >= 3) price = 20;
+if(qty >= 6) price = 19;
 
-
-document.getElementById("count").innerHTML=qty;
-
-
-let price=23;
-
-
-if(qty>=3) price=20;
-
-if(qty>=6) price=19;
-
-
-document.getElementById("price").innerHTML=
-(price*qty)+" JD";
-
-
+document.getElementById("price").innerText = (price * qty) + " JD";
 }
 
+function order(){
 
+let name = document.getElementById("name").value;
+let phone = document.getElementById("phone").value;
 
-function buy(){
-
-
-let name=
-document.getElementById("name").value;
-
-
-let phone=
-document.getElementById("phone").value;
-
-
-let msg=
-
-`NEW ORDER
+let msg =
+`NEW LOR’ ORDER
 Name: ${name}
 Phone: ${phone}
 Quantity: ${qty}
-Product: NOIRÉ Solid Perfume`;
+Product: Solid Perfume`;
 
-
-window.open(
-
-"https://wa.me/962790276691?text="+
-encodeURIComponent(msg)
-
-);
-
+window.open("https://wa.me/962790276691?text=" + encodeURIComponent(msg));
 
 }
 
-
 </script>
-
-
 
 </body>
 </html>
