@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>LOR’ WebGL Engine</title>
+<title>LOR’ Shader Engine</title>
 
 <style>
 body{
@@ -27,16 +27,11 @@ letter-spacing:3px;
 
 #info{
 position:fixed;
-bottom:60px;
+bottom:50px;
 left:8%;
-max-width:400px;
+max-width:420px;
 color:#aaa;
 line-height:1.6;
-}
-
-h1{
-color:#d4af37;
-margin:0;
 }
 
 #loading{
@@ -47,25 +42,25 @@ align-items:center;
 justify-content:center;
 background:#000;
 color:#d4af37;
-font-size:30px;
+font-size:28px;
 z-index:999;
 }
 </style>
+
 </head>
 
 <body>
 
-<div id="loading">INITIALIZING LOR’ ENGINE...</div>
+<div id="loading">COMPILING SHADERS...</div>
 
 <div id="ui">
-<div>LOR’ ENGINE</div>
-<div>WEBGL / REALTIME</div>
+<div>LOR’ SHADER ENGINE</div>
+<div>GLSL / WEBGL PIPELINE</div>
 </div>
 
 <div id="info">
-<h1>SOLID PERFUME</h1>
-A real-time fragrance visualization system.<br>
-Light reacts. Camera responds. Identity forms.
+<b style="color:#d4af37;">LOR’ CORE</b><br>
+A procedural fragrance simulation rendered using shader-based lighting and volumetric depth.
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -73,84 +68,106 @@ Light reacts. Camera responds. Identity forms.
 <script>
 
 // =====================
-// SCENE SETUP
+// SCENE
 // =====================
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x000000, 3, 12);
+scene.fog = new THREE.Fog(0x000000, 2, 10);
 
-// camera
-const camera = new THREE.PerspectiveCamera(
-60,
-window.innerWidth/window.innerHeight,
-0.1,
-1000
-);
+const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.z = 5;
 
-camera.position.z = 6;
-
-// renderer
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 document.body.appendChild(renderer.domElement);
 
 // =====================
-// LIGHTING SYSTEM
+// GLSL SHADER MATERIAL (CORE)
 // =====================
-const light = new THREE.PointLight(0xd4af37,2);
-light.position.set(3,3,3);
-scene.add(light);
 
-const ambient = new THREE.AmbientLight(0xffffff,0.2);
-scene.add(ambient);
+const uniforms = {
+time: {value:0},
+mouse: {value:new THREE.Vector2(0,0)}
+};
 
-// =====================
-// PERFUME BOTTLE CORE
-// =====================
-const bottleGeo = new THREE.CylinderGeometry(0.8,0.8,2,64);
+const vertexShader = `
+varying vec3 vPosition;
 
-// fake glass material (engine approximation)
-const bottleMat = new THREE.MeshStandardMaterial({
-color:0x111111,
-metalness:0.8,
-roughness:0.2
-});
+void main(){
+vPosition = position;
+gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+}
+`;
 
-const bottle = new THREE.Mesh(bottleGeo,bottleMat);
-scene.add(bottle);
+const fragmentShader = `
+uniform float time;
+uniform vec2 mouse;
 
-// gold cap
-const capGeo = new THREE.SphereGeometry(0.5,32,32);
-const capMat = new THREE.MeshStandardMaterial({
-color:0xd4af37,
-metalness:1,
-roughness:0.1
-});
+varying vec3 vPosition;
 
-const cap = new THREE.Mesh(capGeo,capMat);
-cap.position.y = 1.2;
-scene.add(cap);
-
-// =====================
-// SCENT PARTICLE FIELD
-// =====================
-const count = 400;
-const positions = new Float32Array(count*3);
-
-for(let i=0;i<count;i++){
-positions[i*3] = (Math.random()-0.5)*10;
-positions[i*3+1] = (Math.random()-0.5)*10;
-positions[i*3+2] = (Math.random()-0.5)*10;
+// noise-ish function
+float noise(vec3 p){
+return sin(p.x*10.0 + time) * sin(p.y*10.0 + time) * sin(p.z*10.0);
 }
 
-const geo = new THREE.BufferGeometry();
-geo.setAttribute("position", new THREE.BufferAttribute(positions,3));
+void main(){
+
+vec3 color = vec3(0.0);
+
+// base gold tone
+float n = noise(vPosition * 2.0);
+
+color.r = 0.83 + n * 0.1;
+color.g = 0.67 + n * 0.05;
+color.b = 0.20;
+
+// fresnel effect
+float fresnel = pow(1.0 - abs(dot(vec3(0.0,0.0,1.0), normalize(vPosition))), 3.0);
+
+color += fresnel * 0.6;
+
+// mouse influence distortion
+color += vec3(mouse.x * 0.2, mouse.y * 0.1, 0.0);
+
+gl_FragColor = vec4(color,1.0);
+}
+`;
+
+// =====================
+// SHADER OBJECT (BOTTLE CORE)
+// =====================
+const geometry = new THREE.CylinderGeometry(1,1,2,64);
+
+const material = new THREE.ShaderMaterial({
+uniforms,
+vertexShader,
+fragmentShader
+});
+
+const bottle = new THREE.Mesh(geometry,material);
+scene.add(bottle);
+
+// =====================
+// PARTICLE FIELD (SHADER-LIGHT FEEL)
+// =====================
+const particlesGeo = new THREE.BufferGeometry();
+const count = 800;
+
+const pos = new Float32Array(count*3);
+
+for(let i=0;i<count;i++){
+pos[i*3] = (Math.random()-0.5)*10;
+pos[i*3+1] = (Math.random()-0.5)*10;
+pos[i*3+2] = (Math.random()-0.5)*10;
+}
+
+particlesGeo.setAttribute("position", new THREE.BufferAttribute(pos,3));
 
 const particles = new THREE.Points(
-geo,
+particlesGeo,
 new THREE.PointsMaterial({
 color:0xd4af37,
-size:0.03
+size:0.02
 })
 );
 
@@ -163,15 +180,10 @@ function animate(){
 
 requestAnimationFrame(animate);
 
-// core motion
+uniforms.time.value += 0.02;
+
 bottle.rotation.y += 0.003;
-cap.rotation.y += 0.005;
-
-// scent field movement
 particles.rotation.y += 0.001;
-
-// light breathing effect
-light.intensity = 1.5 + Math.sin(Date.now()*0.002)*0.5;
 
 renderer.render(scene,camera);
 }
@@ -179,25 +191,21 @@ renderer.render(scene,camera);
 animate();
 
 // =====================
-// MOUSE ENGINE (LIGHT TRACKING)
+// MOUSE ENGINE
 // =====================
 document.addEventListener("mousemove",(e)=>{
 
-const x = (e.clientX/window.innerWidth - 0.5)*2;
-const y = (e.clientY/window.innerHeight - 0.5)*2;
+uniforms.mouse.value.x = e.clientX / window.innerWidth;
+uniforms.mouse.value.y = e.clientY / window.innerHeight;
 
-camera.position.x = x*1.2;
-camera.position.y = -y*1.2;
+camera.position.x = (uniforms.mouse.value.x - 0.5) * 2;
+camera.position.y = -(uniforms.mouse.value.y - 0.5) * 2;
 camera.lookAt(0,0,0);
-
-// light follows cursor
-light.position.x = x*5;
-light.position.y = -y*5;
 
 });
 
 // =====================
-// RESIZE ENGINE
+// RESIZE
 // =====================
 window.addEventListener("resize",()=>{
 
@@ -208,7 +216,7 @@ renderer.setSize(window.innerWidth,window.innerHeight);
 
 });
 
-// fake loading
+// loading
 setTimeout(()=>{
 document.getElementById("loading").style.display="none";
 },2000);
