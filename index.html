@@ -2,224 +2,251 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>LOR’ Shader Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOR’ | Luxury Perfume</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
-body{
+
+*{
 margin:0;
-overflow:hidden;
-background:#000;
-font-family:Arial;
+padding:0;
+box-sizing:border-box;
+font-family:'Playfair Display', serif;
 }
 
-#ui{
+body{
+background:#000;
+color:#fff;
+overflow-x:hidden;
+}
+
+/* ================= NAV ================= */
+
+nav{
 position:fixed;
 top:0;
-left:0;
 width:100%;
-padding:20px 8%;
+padding:25px 8%;
 display:flex;
 justify-content:space-between;
-color:#d4af37;
 z-index:10;
+font-size:14px;
 letter-spacing:3px;
+opacity:.8;
 }
 
-#info{
-position:fixed;
-bottom:50px;
-left:8%;
-max-width:420px;
-color:#aaa;
-line-height:1.6;
-}
+/* ================= HERO ================= */
 
-#loading{
-position:fixed;
-inset:0;
+.hero{
+height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
-background:#000;
-color:#d4af37;
-font-size:28px;
-z-index:999;
+text-align:center;
+position:relative;
 }
+
+.hero h1{
+font-size:90px;
+letter-spacing:20px;
+font-weight:400;
+}
+
+.hero span{
+color:#d4af37;
+}
+
+.hero p{
+margin-top:20px;
+opacity:.6;
+font-size:18px;
+line-height:1.8;
+}
+
+/* subtle glow */
+.glow{
+position:absolute;
+width:500px;
+height:500px;
+background:radial-gradient(circle,#d4af37 0%,transparent 70%);
+opacity:.08;
+filter:blur(40px);
+}
+
+/* ================= PRODUCT SECTION ================= */
+
+.product{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 10%;
+gap:80px;
+}
+
+.product img{
+width:420px;
+filter:drop-shadow(0 40px 80px rgba(212,175,55,0.15));
+transform:translateY(20px);
+transition:1s ease;
+}
+
+.product-text h2{
+font-size:50px;
+font-weight:400;
+letter-spacing:6px;
+}
+
+.product-text p{
+margin-top:20px;
+opacity:.6;
+line-height:2;
+max-width:500px;
+}
+
+/* ================= STORY ================= */
+
+.story{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:0 15%;
+}
+
+.story p{
+font-size:22px;
+line-height:2.2;
+opacity:.7;
+}
+
+.story span{
+color:#d4af37;
+}
+
+/* ================= FINAL CTA ================= */
+
+.cta{
+min-height:80vh;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+text-align:center;
+}
+
+.cta h2{
+font-size:60px;
+letter-spacing:10px;
+font-weight:400;
+}
+
+button{
+margin-top:40px;
+padding:15px 40px;
+background:#d4af37;
+border:none;
+cursor:pointer;
+font-weight:bold;
+letter-spacing:2px;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+/* ================= SCROLL ANIMATION ================= */
+
+.hidden{
+opacity:0;
+transform:translateY(40px);
+transition:1s ease;
+}
+
+.show{
+opacity:1;
+transform:translateY(0);
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div id="loading">COMPILING SHADERS...</div>
+<nav>
+<div>LOR’</div>
+<div>PERFUME · 2026</div>
+</nav>
 
-<div id="ui">
-<div>LOR’ SHADER ENGINE</div>
-<div>GLSL / WEBGL PIPELINE</div>
+<!-- HERO -->
+<section class="hero">
+<div class="glow"></div>
+
+<div>
+<h1>LOR’ <span>SIGNATURE</span></h1>
+<p>
+A solid perfume crafted for presence, not scent.
+</p>
+</div>
+</section>
+
+<!-- PRODUCT -->
+<section class="product hidden">
+
+<img src="https://i.imgur.com/8Km9tLL.png">
+
+<div class="product-text">
+<h2>THE OBJECT</h2>
+<p>
+A minimalist solid perfume designed with premium wax base and long-lasting fragrance oils.
+Built for elegance. Not excess.
+</p>
 </div>
 
-<div id="info">
-<b style="color:#d4af37;">LOR’ CORE</b><br>
-A procedural fragrance simulation rendered using shader-based lighting and volumetric depth.
-</div>
+</section>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- STORY -->
+<section class="story hidden">
+
+<p>
+<span>LOR’</span> is not designed to attract attention.  
+It is designed to define presence.
+
+Luxury is not noise.  
+Luxury is control, silence, and memory.
+</p>
+
+</section>
+
+<!-- CTA -->
+<section class="cta hidden">
+
+<h2>DISCOVER LOR’</h2>
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+EXPLORE AGAIN
+</button>
+
+</section>
 
 <script>
 
-// =====================
-// SCENE
-// =====================
-const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x000000, 2, 10);
+// scroll reveal (minimal + smooth)
+const elements = document.querySelectorAll('.hidden');
 
-const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
-camera.position.z = 5;
-
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-document.body.appendChild(renderer.domElement);
-
-// =====================
-// GLSL SHADER MATERIAL (CORE)
-// =====================
-
-const uniforms = {
-time: {value:0},
-mouse: {value:new THREE.Vector2(0,0)}
-};
-
-const vertexShader = `
-varying vec3 vPosition;
-
-void main(){
-vPosition = position;
-gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+const observer = new IntersectionObserver(entries=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting){
+entry.target.classList.add('show');
 }
-`;
-
-const fragmentShader = `
-uniform float time;
-uniform vec2 mouse;
-
-varying vec3 vPosition;
-
-// noise-ish function
-float noise(vec3 p){
-return sin(p.x*10.0 + time) * sin(p.y*10.0 + time) * sin(p.z*10.0);
-}
-
-void main(){
-
-vec3 color = vec3(0.0);
-
-// base gold tone
-float n = noise(vPosition * 2.0);
-
-color.r = 0.83 + n * 0.1;
-color.g = 0.67 + n * 0.05;
-color.b = 0.20;
-
-// fresnel effect
-float fresnel = pow(1.0 - abs(dot(vec3(0.0,0.0,1.0), normalize(vPosition))), 3.0);
-
-color += fresnel * 0.6;
-
-// mouse influence distortion
-color += vec3(mouse.x * 0.2, mouse.y * 0.1, 0.0);
-
-gl_FragColor = vec4(color,1.0);
-}
-`;
-
-// =====================
-// SHADER OBJECT (BOTTLE CORE)
-// =====================
-const geometry = new THREE.CylinderGeometry(1,1,2,64);
-
-const material = new THREE.ShaderMaterial({
-uniforms,
-vertexShader,
-fragmentShader
 });
+},{threshold:0.2});
 
-const bottle = new THREE.Mesh(geometry,material);
-scene.add(bottle);
-
-// =====================
-// PARTICLE FIELD (SHADER-LIGHT FEEL)
-// =====================
-const particlesGeo = new THREE.BufferGeometry();
-const count = 800;
-
-const pos = new Float32Array(count*3);
-
-for(let i=0;i<count;i++){
-pos[i*3] = (Math.random()-0.5)*10;
-pos[i*3+1] = (Math.random()-0.5)*10;
-pos[i*3+2] = (Math.random()-0.5)*10;
-}
-
-particlesGeo.setAttribute("position", new THREE.BufferAttribute(pos,3));
-
-const particles = new THREE.Points(
-particlesGeo,
-new THREE.PointsMaterial({
-color:0xd4af37,
-size:0.02
-})
-);
-
-scene.add(particles);
-
-// =====================
-// ENGINE LOOP
-// =====================
-function animate(){
-
-requestAnimationFrame(animate);
-
-uniforms.time.value += 0.02;
-
-bottle.rotation.y += 0.003;
-particles.rotation.y += 0.001;
-
-renderer.render(scene,camera);
-}
-
-animate();
-
-// =====================
-// MOUSE ENGINE
-// =====================
-document.addEventListener("mousemove",(e)=>{
-
-uniforms.mouse.value.x = e.clientX / window.innerWidth;
-uniforms.mouse.value.y = e.clientY / window.innerHeight;
-
-camera.position.x = (uniforms.mouse.value.x - 0.5) * 2;
-camera.position.y = -(uniforms.mouse.value.y - 0.5) * 2;
-camera.lookAt(0,0,0);
-
-});
-
-// =====================
-// RESIZE
-// =====================
-window.addEventListener("resize",()=>{
-
-camera.aspect = window.innerWidth/window.innerHeight;
-camera.updateProjectionMatrix();
-
-renderer.setSize(window.innerWidth,window.innerHeight);
-
-});
-
-// loading
-setTimeout(()=>{
-document.getElementById("loading").style.display="none";
-},2000);
+elements.forEach(el=>observer.observe(el));
 
 </script>
 
