@@ -2,107 +2,449 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>LOR’ | Universe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOR’ | Ultimate Experience</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
 
-body{
+/* =========================
+   GLOBAL
+========================= */
+
+*{
 margin:0;
-background:#000;
-color:#fff;
+padding:0;
+box-sizing:border-box;
 font-family:'Playfair Display', serif;
-overflow:hidden;
 }
 
-/* INTRO */
+body{
+background:#000;
+color:#fff;
+overflow-x:hidden;
+scroll-behavior:smooth;
+}
+
+/* =========================
+   INTRO CINEMATIC
+========================= */
+
 .intro{
 position:fixed;
 inset:0;
+background:#000;
 display:flex;
 align-items:center;
 justify-content:center;
-background:#000;
-z-index:999;
-animation:fadeOut 2.5s ease 2.5s forwards;
+z-index:9999;
+animation:fadeOut 3s ease 3s forwards;
 }
 
 .intro h1{
-font-size:90px;
+font-size:100px;
+letter-spacing:25px;
 color:#d4af37;
-letter-spacing:20px;
-animation:zoom 2s ease;
+animation:zoom 2.5s ease;
 }
 
 @keyframes zoom{
 from{transform:scale(0.8);opacity:0;}
-to{transform:scale(1);opacity:1;}
+to{transform:scale(1.1);opacity:1;}
 }
 
 @keyframes fadeOut{
 to{opacity:0;visibility:hidden;}
 }
 
-/* HOME */
-.home{
+/* =========================
+   HERO
+========================= */
+
+.hero{
 height:100vh;
 display:flex;
-flex-direction:column;
 align-items:center;
-justify-content:center;
+justify-content:space-between;
+padding:0 8%;
+background:
+radial-gradient(circle at center,#1a1400,transparent 40%),
+#000;
+}
+
+.hero h1{
+font-size:90px;
+letter-spacing:15px;
+}
+
+.hero span{
+color:#d4af37;
+}
+
+.hero p{
+margin-top:20px;
+opacity:.7;
+line-height:1.8;
+font-size:20px;
+max-width:500px;
+}
+
+.hero img{
+width:380px;
+filter:drop-shadow(0 0 90px #d4af37);
+animation:float 5s infinite;
+}
+
+@keyframes float{
+50%{transform:translateY(-30px);}
+}
+
+/* =========================
+   SCROLL TEXT WALL
+========================= */
+
+.wall{
+padding:150px 15%;
+line-height:2.5;
+font-size:20px;
+color:#aaa;
+}
+
+.wall span{
+color:#d4af37;
+font-weight:bold;
+font-size:28px;
+}
+
+/* =========================
+   STATISTICS
+========================= */
+
+.stats{
+display:flex;
+justify-content:space-around;
+padding:120px 8%;
 text-align:center;
 }
 
-.home h2{
+.stats h2{
 font-size:60px;
+color:#d4af37;
+}
+
+/* =========================
+   STORY BLOCKS
+========================= */
+
+.blocks{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
+padding:120px 8%;
+}
+
+.block{
+background:#111;
+padding:40px;
+border:1px solid #222;
+transition:.4s;
+}
+
+.block:hover{
+transform:translateY(-10px);
+border-color:#d4af37;
+}
+
+/* =========================
+   LONG STORY SECTION
+========================= */
+
+.long{
+padding:150px 18%;
+font-size:19px;
+line-height:2.6;
+color:#999;
+}
+
+.long b{
+color:#d4af37;
+}
+
+/* =========================
+   PRODUCT CORE
+========================= */
+
+.product{
+padding:150px 8%;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:60px;
+}
+
+.product img{
+width:420px;
+filter:drop-shadow(0 0 100px #d4af37);
+}
+
+.info h1{
+font-size:55px;
+}
+
+.price{
+font-size:45px;
+color:#d4af37;
+margin:20px 0;
+}
+
+input,select{
+width:100%;
+padding:14px;
+margin:8px 0;
+background:#111;
+border:1px solid #333;
+color:#fff;
+}
+
+/* =========================
+   MASSIVE BRAND TEXT
+========================= */
+
+.massive{
+padding:200px 10%;
+text-align:center;
+font-size:30px;
+line-height:2.5;
+color:#777;
+}
+
+.massive span{
+color:#d4af37;
+font-size:60px;
+display:block;
+margin:40px 0;
+}
+
+/* =========================
+   TESTIMONIALS
+========================= */
+
+.testimonials{
+padding:120px 8%;
+}
+
+.t{
+background:#111;
+padding:30px;
+margin:20px 0;
+border-left:4px solid #d4af37;
+}
+
+/* =========================
+   FINAL
+========================= */
+
+.final{
+height:500px;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+background:linear-gradient(#000,#111);
+}
+
+.final h1{
+font-size:70px;
+color:#d4af37;
 letter-spacing:10px;
 }
 
-.home span{color:#d4af37;}
+/* =========================
+   FOOTER
+========================= */
 
-.buttons{
-margin-top:40px;
+footer{
+padding:40px;
+text-align:center;
+opacity:.6;
+border-top:1px solid #222;
 }
 
-a{
-text-decoration:none;
-color:#000;
-background:#d4af37;
-padding:15px 30px;
-margin:10px;
-border-radius:40px;
-display:inline-block;
-font-weight:bold;
-transition:.3s;
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:900px){
+
+.hero,
+.product{
+flex-direction:column;
+text-align:center;
 }
 
-a:hover{transform:scale(1.1);}
+.blocks{
+grid-template-columns:1fr;
+}
+
+.stats{
+flex-direction:column;
+gap:40px;
+}
+
+}
 
 </style>
+
 </head>
 
 <body>
 
+<!-- INTRO -->
 <div class="intro">
 <h1>LOR’</h1>
 </div>
 
-<div class="home">
+<!-- HERO -->
+<section class="hero">
 
-<h2>
-WELCOME TO<br>
-<span>LOR’ UNIVERSE</span>
-</h2>
-
-<p>A fragrance is not worn. It is entered.</p>
-
-<div class="buttons">
-<a href="shop.html">ENTER SHOP</a>
-<a href="lab.html">SCENT LAB</a>
-<a href="story.html">OUR STORY</a>
+<div>
+<h1>SOLID<br><span>PERFUME</span></h1>
+<p>
+A fragrance does not disappear.<br>
+It becomes part of your identity.
+</p>
 </div>
 
+<img src="https://i.imgur.com/8Km9tLL.png">
+
+</section>
+
+<!-- MASSIVE WALL -->
+<section class="wall">
+
+<span>LOR’</span> is not a product.  
+It is a constructed identity system designed to redefine presence.
+
+Every element of this formulation has been engineered for permanence,  
+not in time — but in memory.
+
+Luxury is not about appearance.  
+It is about impact.
+
+And impact is what remains when everything else fades.
+
+</section>
+
+<!-- STATS -->
+<section class="stats">
+
+<div>
+<h2>12H+</h2>
+<p>Longevity</p>
 </div>
+
+<div>
+<h2>0%</h2>
+<p>Alcohol</p>
+</div>
+
+<div>
+<h2>100%</h2>
+<p>Identity</p>
+</div>
+
+</section>
+
+<!-- BLOCKS -->
+<section class="blocks">
+
+<div class="block">Luxury is silent dominance.</div>
+<div class="block">Scent becomes behavior influence.</div>
+<div class="block">Presence is engineered, not born.</div>
+
+</section>
+
+<!-- LONG STORY -->
+<section class="long">
+
+<b>LOR’</b> was not designed in a laboratory alone.  
+It was designed in perception theory.
+
+The way humans remember scent is not logical.  
+It is emotional.
+
+And emotion is what we control.
+
+This is why LOR’ does not fade like perfume.  
+It integrates like memory.
+
+Every application is a reinforcement of identity.
+
+Not smell.  
+Not fragrance.  
+Identity.
+
+</section>
+
+<!-- PRODUCT -->
+<section class="product">
+
+<img src="https://i.imgur.com/8Km9tLL.png">
+
+<div class="info">
+
+<h1>LOR’ SIGNATURE</h1>
+
+<div class="price">23 JD</div>
+
+<select>
+<option>For Men</option>
+<option>For Women</option>
+</select>
+
+<input placeholder="Name">
+<input placeholder="Phone">
+
+</div>
+
+</section>
+
+<!-- MASSIVE TEXT -->
+<section class="massive">
+
+SCENT IS MEMORY
+
+<span>LOR’ IS CONTROL</span>
+
+YOU DO NOT WEAR IT  
+YOU BECOME IT
+
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+
+<div class="t">“This doesn’t smell like perfume. It feels like identity.”</div>
+<div class="t">“People react differently when I wear LOR’.”</div>
+<div class="t">“It stays longer than anything I’ve used before.”</div>
+
+</section>
+
+<!-- FINAL -->
+<section class="final">
+
+<h1>
+THIS IS NOT PERFUME<br>
+THIS IS LOR’
+</h1>
+
+</section>
+
+<!-- FOOTER -->
+<footer>
+© 2026 LOR’ — Identity System
+</footer>
 
 </body>
 </html>
