@@ -17,9 +17,16 @@ font-family:'Playfair Display', serif;
 }
 
 body{
-background:#000;
-color:#fff;
+background:#ffffff;
+color:#111;
 overflow-x:hidden;
+}
+
+/* GOLD THEME */
+:root{
+--gold:#d4af37;
+--text:#111;
+--light:#777;
 }
 
 /* NAV */
@@ -34,9 +41,10 @@ font-size:13px;
 letter-spacing:4px;
 opacity:.8;
 z-index:10;
+color:var(--text);
 }
 
-/* SECTION BASE */
+/* GENERAL SECTION */
 section{
 min-height:100vh;
 display:flex;
@@ -51,10 +59,11 @@ text-align:center;
 font-size:90px;
 letter-spacing:15px;
 font-weight:400;
+color:var(--text);
 }
 
 .hero span{
-color:#d4af37;
+color:var(--gold);
 }
 
 .hero p{
@@ -73,35 +82,61 @@ gap:80px;
 
 .product img{
 width:380px;
-filter:drop-shadow(0 50px 80px rgba(212,175,55,0.15));
+filter:drop-shadow(0 30px 60px rgba(0,0,0,0.1));
 }
 
 .product h2{
 font-size:50px;
 letter-spacing:6px;
 margin-bottom:20px;
+color:var(--text);
 }
 
 .product p{
-opacity:.6;
+opacity:.7;
 line-height:2;
 max-width:500px;
+}
+
+/* STORY */
+.story{
+flex-direction:column;
+}
+
+.story h2{
+font-size:50px;
+letter-spacing:6px;
+margin-bottom:20px;
+}
+
+.story p{
+opacity:.7;
+max-width:600px;
+line-height:2;
 }
 
 /* VALUES */
 .values{
 flex-direction:column;
-gap:40px;
+gap:30px;
 }
 
 .value-box{
-border:1px solid #222;
+border:1px solid #eee;
 padding:30px;
 width:60%;
+background:#fff;
+box-shadow:0 10px 30px rgba(0,0,0,0.05);
+transition:.3s;
+}
+
+.value-box:hover{
+transform:translateY(-5px);
+border-color:var(--gold);
 }
 
 .value-box h3{
-color:#d4af37;
+color:var(--gold);
 margin-bottom:10px;
 letter-spacing:3px;
 }
@@ -115,25 +150,28 @@ gap:20px;
 .review{
 max-width:600px;
 padding:20px;
-border-left:3px solid #d4af37;
-opacity:.7;
-background:#0a0a0a;
+border-left:3px solid var(--gold);
+background:#fafafa;
+opacity:.8;
 }
 
 /* CTA */
 .cta h1{
 font-size:60px;
 letter-spacing:10px;
+color:var(--text);
 }
 
 button{
 margin-top:30px;
 padding:15px 40px;
-background:#d4af37;
+background:var(--gold);
 border:none;
 cursor:pointer;
 letter-spacing:3px;
 font-weight:bold;
+color:#fff;
+transition:.3s;
 }
 
 button:hover{
@@ -156,7 +194,7 @@ transform:scale(1.05);
 <div>
 <h1>LOR’ <span>SIGNATURE</span></h1>
 <p>
-A solid perfume crafted for presence, elegance, and lasting identity.
+A refined solid perfume crafted for elegance, presence, and timeless identity.
 </p>
 </div>
 </section>
@@ -169,21 +207,21 @@ A solid perfume crafted for presence, elegance, and lasting identity.
 <div>
 <h2>THE PRODUCT</h2>
 <p>
-LOR’ Solid Perfume is a refined fragrance composition designed with premium wax base and high concentration oils for long-lasting skin interaction.
+A luxury solid perfume designed with premium wax base and high concentration fragrance oils for a long-lasting skin signature.
 </p>
 </div>
 
 </section>
 
 <!-- STORY -->
-<section>
-<div>
-<h2 style="font-size:50px; letter-spacing:6px;">OUR STORY</h2>
-<p style="margin-top:20px; opacity:.6; line-height:2; max-width:600px;">
-LOR’ was created to redefine luxury fragrance into a minimal, personal experience.  
-Not to impress the world — but to define the person wearing it.
+<section class="story">
+
+<h2>OUR STORY</h2>
+<p>
+LOR’ was created to redefine modern luxury fragrance into a minimal, pure, and personal experience.
+Not to overwhelm the senses — but to define identity through subtle presence.
 </p>
-</div>
+
 </section>
 
 <!-- VALUES -->
@@ -191,17 +229,17 @@ Not to impress the world — but to define the person wearing it.
 
 <div class="value-box">
 <h3>LONG LASTING</h3>
-<p>Engineered for all-day presence on skin.</p>
+<p>Engineered to stay with you throughout the day.</p>
 </div>
 
 <div class="value-box">
-<h3>ALCOHOL FREE</h3>
-<p>Pure solid formulation, skin-friendly composition.</p>
+<h3>PURE FORMULA</h3>
+<p>Alcohol-free solid perfume composition.</p>
 </div>
 
 <div class="value-box">
-<h3>PREMIUM IDENTITY</h3>
-<p>Designed as a personal signature, not just a scent.</p>
+<h3>LUXURY IDENTITY</h3>
+<p>Designed as a personal signature, not just a fragrance.</p>
 </div>
 
 </section>
@@ -209,9 +247,9 @@ Not to impress the world — but to define the person wearing it.
 <!-- REVIEWS -->
 <section class="reviews">
 
-<div class="review">“Feels like a luxury niche brand product.”</div>
-<div class="review">“Very elegant and long-lasting scent.”</div>
-<div class="review">“Minimal design, premium experience.”</div>
+<div class="review">“Very elegant and clean luxury feel.”</div>
+<div class="review">“Smell lasts long and feels premium.”</div>
+<div class="review">“Packaging and design feel like a high-end brand.”</div>
 
 </section>
 
