@@ -22,8 +22,7 @@ color:#fff;
 overflow-x:hidden;
 }
 
-/* ================= NAV ================= */
-
+/* NAV */
 nav{
 position:fixed;
 top:0;
@@ -31,119 +30,114 @@ width:100%;
 padding:25px 8%;
 display:flex;
 justify-content:space-between;
-z-index:10;
 font-size:13px;
 letter-spacing:4px;
 opacity:.8;
+z-index:10;
 }
 
-/* ================= HERO ================= */
-
-.hero{
-height:100vh;
+/* SECTION BASE */
+section{
+min-height:100vh;
 display:flex;
 align-items:center;
-justify-content:space-between;
+justify-content:center;
 padding:0 10%;
-gap:80px;
+text-align:center;
 }
 
-.hero-text h1{
-font-size:70px;
-letter-spacing:12px;
+/* HERO */
+.hero h1{
+font-size:90px;
+letter-spacing:15px;
 font-weight:400;
 }
 
-.hero-text span{
+.hero span{
 color:#d4af37;
 }
 
-.hero-text p{
+.hero p{
 margin-top:20px;
 opacity:.6;
+max-width:500px;
 line-height:2;
-max-width:450px;
 }
 
-/* ================= PRODUCT CARD ================= */
+/* PRODUCT */
+.product{
+justify-content:space-between;
+text-align:left;
+gap:80px;
+}
 
-.card{
-background:#0a0a0a;
-padding:40px;
-border:1px solid #222;
+.product img{
 width:380px;
+filter:drop-shadow(0 50px 80px rgba(212,175,55,0.15));
 }
 
-.price{
-font-size:40px;
+.product h2{
+font-size:50px;
+letter-spacing:6px;
+margin-bottom:20px;
+}
+
+.product p{
+opacity:.6;
+line-height:2;
+max-width:500px;
+}
+
+/* VALUES */
+.values{
+flex-direction:column;
+gap:40px;
+}
+
+.value-box{
+border:1px solid #222;
+padding:30px;
+width:60%;
+}
+
+.value-box h3{
 color:#d4af37;
-margin:20px 0;
-}
-
-select,input{
-width:100%;
-padding:12px;
-margin:8px 0;
-background:#111;
-border:1px solid #333;
-color:#fff;
-}
-
-button{
-width:100%;
-padding:15px;
-margin-top:15px;
-background:#d4af37;
-border:none;
-cursor:pointer;
-font-weight:bold;
-letter-spacing:2px;
-transition:.3s;
-}
-
-button:hover{
-transform:scale(1.03);
-}
-
-/* ================= TRUST ================= */
-
-.trust{
-padding:120px 10%;
-display:flex;
-justify-content:space-around;
-text-align:center;
-opacity:.7;
-}
-
-.trust h2{
-color:#d4af37;
-font-size:30px;
 margin-bottom:10px;
+letter-spacing:3px;
 }
 
-/* ================= REVIEWS ================= */
-
+/* REVIEWS */
 .reviews{
-padding:120px 10%;
-text-align:center;
+flex-direction:column;
+gap:20px;
 }
 
 .review{
-margin:20px auto;
 max-width:600px;
 padding:20px;
 border-left:3px solid #d4af37;
+opacity:.7;
 background:#0a0a0a;
-opacity:.8;
 }
 
-/* ================= FOOTER ================= */
+/* CTA */
+.cta h1{
+font-size:60px;
+letter-spacing:10px;
+}
 
-footer{
-padding:40px;
-text-align:center;
-opacity:.5;
-border-top:1px solid #222;
+button{
+margin-top:30px;
+padding:15px 40px;
+background:#d4af37;
+border:none;
+cursor:pointer;
+letter-spacing:3px;
+font-weight:bold;
+}
+
+button:hover{
+transform:scale(1.05);
 }
 
 </style>
@@ -154,58 +148,60 @@ border-top:1px solid #222;
 
 <nav>
 <div>LOR’</div>
-<div>LUXURY STORE</div>
+<div>SOLID PERFUME</div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-
-<div class="hero-text">
+<div>
 <h1>LOR’ <span>SIGNATURE</span></h1>
 <p>
-Solid perfume crafted for long-lasting identity and premium presence.
-Minimal composition. Maximum impact.
+A solid perfume crafted for presence, elegance, and lasting identity.
 </p>
 </div>
+</section>
 
-<!-- PRODUCT CARD -->
-<div class="card">
+<!-- PRODUCT -->
+<section class="product">
 
-<h3>ORDER NOW</h3>
+<img src="https://i.imgur.com/8Km9tLL.png">
 
-<div class="price">23 JD</div>
-
-<select id="type">
-<option>For Men</option>
-<option>For Women</option>
-</select>
-
-<input id="name" placeholder="Full Name">
-<input id="phone" placeholder="Phone Number">
-<input id="qty" type="number" value="1" min="1">
-
-<button onclick="order()">BUY VIA WHATSAPP</button>
-
+<div>
+<h2>THE PRODUCT</h2>
+<p>
+LOR’ Solid Perfume is a refined fragrance composition designed with premium wax base and high concentration oils for long-lasting skin interaction.
+</p>
 </div>
 
 </section>
 
-<!-- TRUST -->
-<section class="trust">
-
+<!-- STORY -->
+<section>
 <div>
-<h2>12H+</h2>
-<p>Long Lasting</p>
+<h2 style="font-size:50px; letter-spacing:6px;">OUR STORY</h2>
+<p style="margin-top:20px; opacity:.6; line-height:2; max-width:600px;">
+LOR’ was created to redefine luxury fragrance into a minimal, personal experience.  
+Not to impress the world — but to define the person wearing it.
+</p>
+</div>
+</section>
+
+<!-- VALUES -->
+<section class="values">
+
+<div class="value-box">
+<h3>LONG LASTING</h3>
+<p>Engineered for all-day presence on skin.</p>
 </div>
 
-<div>
-<h2>100%</h2>
-<p>Solid Perfume</p>
+<div class="value-box">
+<h3>ALCOHOL FREE</h3>
+<p>Pure solid formulation, skin-friendly composition.</p>
 </div>
 
-<div>
-<h2>0%</h2>
-<p>Alcohol</p>
+<div class="value-box">
+<h3>PREMIUM IDENTITY</h3>
+<p>Designed as a personal signature, not just a scent.</p>
 </div>
 
 </section>
@@ -213,40 +209,21 @@ Minimal composition. Maximum impact.
 <!-- REVIEWS -->
 <section class="reviews">
 
-<div class="review">“Smell is extremely elegant and long lasting.”</div>
-<div class="review">“Feels like luxury brand product, not a normal perfume.”</div>
-<div class="review">“Packaging and scent both premium level.”</div>
+<div class="review">“Feels like a luxury niche brand product.”</div>
+<div class="review">“Very elegant and long-lasting scent.”</div>
+<div class="review">“Minimal design, premium experience.”</div>
 
 </section>
 
-<footer>
-© 2026 LOR’ — Luxury Solid Perfume
-</footer>
-
-<script>
-
-function order(){
-
-const name = document.getElementById("name").value;
-const phone = document.getElementById("phone").value;
-const type = document.getElementById("type").value;
-const qty = document.getElementById("qty").value;
-
-const msg =
-`🖤 LOR’ NEW ORDER
-------------------
-Name: ${name}
-Phone: ${phone}
-Type: ${type}
-Quantity: ${qty}
-Price: ${23 * qty} JD
-------------------`;
-
-window.open("https://wa.me/962790276691?text=" + encodeURIComponent(msg));
-
-}
-
-</script>
+<!-- CTA -->
+<section class="cta">
+<div>
+<h1>DISCOVER LOR’</h1>
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+EXPLORE
+</button>
+</div>
+</section>
 
 </body>
 </html>
