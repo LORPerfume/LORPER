@@ -9,8 +9,6 @@
 
 <style>
 
-/* ================= GLOBAL ================= */
-
 *{
 margin:0;
 padding:0;
@@ -30,7 +28,7 @@ nav{
 position:fixed;
 top:0;
 width:100%;
-padding:30px 8%;
+padding:25px 8%;
 display:flex;
 justify-content:space-between;
 z-index:10;
@@ -45,143 +43,107 @@ opacity:.8;
 height:100vh;
 display:flex;
 align-items:center;
-justify-content:center;
-text-align:center;
-flex-direction:column;
+justify-content:space-between;
 padding:0 10%;
+gap:80px;
 }
 
-.hero h1{
-font-size:92px;
-letter-spacing:18px;
+.hero-text h1{
+font-size:70px;
+letter-spacing:12px;
 font-weight:400;
 }
 
-.hero span{
+.hero-text span{
 color:#d4af37;
 }
 
-.hero p{
+.hero-text p{
 margin-top:20px;
 opacity:.6;
-font-size:18px;
-max-width:500px;
 line-height:2;
+max-width:450px;
 }
 
-/* ================= PRODUCT SECTION ================= */
+/* ================= PRODUCT CARD ================= */
 
-.product{
-min-height:100vh;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 12%;
-gap:100px;
+.card{
+background:#0a0a0a;
+padding:40px;
+border:1px solid #222;
+width:380px;
 }
 
-.product img{
-width:420px;
-filter:drop-shadow(0 50px 90px rgba(212,175,55,0.15));
-}
-
-.product-text h2{
-font-size:48px;
-font-weight:400;
-letter-spacing:6px;
-margin-bottom:20px;
-}
-
-.product-text p{
-opacity:.6;
-line-height:2.2;
-max-width:500px;
-font-size:18px;
-}
-
-/* ================= STORY ================= */
-
-.story{
-min-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-padding:0 18%;
-}
-
-.story p{
-font-size:24px;
-line-height:2.4;
-opacity:.7;
-}
-
-.story span{
+.price{
+font-size:40px;
 color:#d4af37;
+margin:20px 0;
 }
 
-/* ================= QUOTE ================= */
-
-.quote{
-min-height:80vh;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-flex-direction:column;
-padding:0 10%;
-}
-
-.quote h2{
-font-size:60px;
-font-weight:400;
-letter-spacing:10px;
-}
-
-.quote p{
-margin-top:30px;
-opacity:.6;
-max-width:600px;
-line-height:2;
-}
-
-/* ================= CTA ================= */
-
-.cta{
-min-height:60vh;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-text-align:center;
+select,input{
+width:100%;
+padding:12px;
+margin:8px 0;
+background:#111;
+border:1px solid #333;
+color:#fff;
 }
 
 button{
-margin-top:30px;
-padding:15px 45px;
+width:100%;
+padding:15px;
+margin-top:15px;
 background:#d4af37;
 border:none;
 cursor:pointer;
-letter-spacing:3px;
 font-weight:bold;
+letter-spacing:2px;
 transition:.3s;
 }
 
 button:hover{
-transform:scale(1.05);
+transform:scale(1.03);
 }
 
-/* ================= SCROLL ANIMATION ================= */
+/* ================= TRUST ================= */
 
-.hidden{
-opacity:0;
-transform:translateY(50px);
-transition:1.2s ease;
+.trust{
+padding:120px 10%;
+display:flex;
+justify-content:space-around;
+text-align:center;
+opacity:.7;
 }
 
-.show{
-opacity:1;
-transform:translateY(0);
+.trust h2{
+color:#d4af37;
+font-size:30px;
+margin-bottom:10px;
+}
+
+/* ================= REVIEWS ================= */
+
+.reviews{
+padding:120px 10%;
+text-align:center;
+}
+
+.review{
+margin:20px auto;
+max-width:600px;
+padding:20px;
+border-left:3px solid #d4af37;
+background:#0a0a0a;
+opacity:.8;
+}
+
+/* ================= FOOTER ================= */
+
+footer{
+padding:40px;
+text-align:center;
+opacity:.5;
+border-top:1px solid #222;
 }
 
 </style>
@@ -192,75 +154,97 @@ transform:translateY(0);
 
 <nav>
 <div>LOR’</div>
-<div>SOLID PERFUME</div>
+<div>LUXURY STORE</div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
+
+<div class="hero-text">
 <h1>LOR’ <span>SIGNATURE</span></h1>
 <p>
-A fragrance designed not to be noticed — but to be remembered.
+Solid perfume crafted for long-lasting identity and premium presence.
+Minimal composition. Maximum impact.
 </p>
-</section>
+</div>
 
-<!-- PRODUCT -->
-<section class="product hidden">
+<!-- PRODUCT CARD -->
+<div class="card">
 
-<img src="https://i.imgur.com/8Km9tLL.png">
+<h3>ORDER NOW</h3>
 
-<div class="product-text">
-<h2>THE OBJECT</h2>
-<p>
-A solid perfume crafted with precision. Minimal composition, long-lasting presence, and skin-anchored scent memory.
-</p>
+<div class="price">23 JD</div>
+
+<select id="type">
+<option>For Men</option>
+<option>For Women</option>
+</select>
+
+<input id="name" placeholder="Full Name">
+<input id="phone" placeholder="Phone Number">
+<input id="qty" type="number" value="1" min="1">
+
+<button onclick="order()">BUY VIA WHATSAPP</button>
+
 </div>
 
 </section>
 
-<!-- STORY -->
-<section class="story hidden">
+<!-- TRUST -->
+<section class="trust">
 
-<p>
-<span>LOR’</span> is not designed to attract attention.  
-It is designed to define identity through silence, presence, and restraint.
-</p>
+<div>
+<h2>12H+</h2>
+<p>Long Lasting</p>
+</div>
+
+<div>
+<h2>100%</h2>
+<p>Solid Perfume</p>
+</div>
+
+<div>
+<h2>0%</h2>
+<p>Alcohol</p>
+</div>
+
+</section>
+
+<!-- REVIEWS -->
+<section class="reviews">
+
+<div class="review">“Smell is extremely elegant and long lasting.”</div>
+<div class="review">“Feels like luxury brand product, not a normal perfume.”</div>
+<div class="review">“Packaging and scent both premium level.”</div>
 
 </section>
 
-<!-- QUOTE -->
-<section class="quote hidden">
-
-<h2>LESS. BUT ETERNAL.</h2>
-<p>
-Luxury is not what you add. It is what you remove until only essence remains.
-</p>
-
-</section>
-
-<!-- CTA -->
-<section class="cta hidden">
-
-<h2>DISCOVER LOR’</h2>
-<button onclick="window.scrollTo({top:0,behavior:'smooth'})">
-EXPLORE
-</button>
-
-</section>
+<footer>
+© 2026 LOR’ — Luxury Solid Perfume
+</footer>
 
 <script>
 
-// scroll reveal (smooth luxury feel)
-const elements = document.querySelectorAll('.hidden');
+function order(){
 
-const observer = new IntersectionObserver(entries=>{
-entries.forEach(entry=>{
-if(entry.isIntersecting){
-entry.target.classList.add('show');
+const name = document.getElementById("name").value;
+const phone = document.getElementById("phone").value;
+const type = document.getElementById("type").value;
+const qty = document.getElementById("qty").value;
+
+const msg =
+`🖤 LOR’ NEW ORDER
+------------------
+Name: ${name}
+Phone: ${phone}
+Type: ${type}
+Quantity: ${qty}
+Price: ${23 * qty} JD
+------------------`;
+
+window.open("https://wa.me/962790276691?text=" + encodeURIComponent(msg));
+
 }
-});
-},{threshold:0.2});
-
-elements.forEach(el=>observer.observe(el));
 
 </script>
 
