@@ -3,295 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LOR’ | Ultimate Experience</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800&display=swap" rel="stylesheet">
+<title>LOR’ | AI EXPERIENCE</title>
 
 <style>
-
-/* =========================
-   GLOBAL
-========================= */
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Playfair Display', serif;
-}
-
 body{
+margin:0;
+overflow:hidden;
 background:#000;
 color:#fff;
-overflow-x:hidden;
-scroll-behavior:smooth;
+font-family:Arial;
 }
 
-/* =========================
-   INTRO CINEMATIC
-========================= */
+/* ===== UI ===== */
+#ui{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+display:flex;
+justify-content:space-between;
+padding:25px 8%;
+z-index:10;
+}
 
-.intro{
+.logo{
+color:#d4af37;
+letter-spacing:12px;
+font-size:18px;
+}
+
+/* ===== HERO TEXT ===== */
+.heroText{
+position:fixed;
+bottom:60px;
+left:8%;
+max-width:420px;
+}
+
+.heroText h1{
+font-size:48px;
+color:#d4af37;
+}
+
+.heroText p{
+opacity:.7;
+line-height:1.6;
+}
+
+/* ===== AI CHAT ===== */
+.aiBox{
+position:fixed;
+right:40px;
+bottom:40px;
+width:280px;
+height:320px;
+background:rgba(20,20,20,0.6);
+backdrop-filter:blur(15px);
+border:1px solid #333;
+border-radius:15px;
+padding:15px;
+display:flex;
+flex-direction:column;
+}
+
+.aiHeader{
+color:#d4af37;
+margin-bottom:10px;
+font-size:14px;
+}
+
+.messages{
+flex:1;
+overflow:auto;
+font-size:12px;
+opacity:.8;
+line-height:1.4;
+}
+
+.input{
+margin-top:10px;
+display:flex;
+gap:5px;
+}
+
+input{
+flex:1;
+padding:8px;
+background:#111;
+border:1px solid #333;
+color:#fff;
+}
+
+button{
+background:#d4af37;
+border:none;
+padding:8px;
+cursor:pointer;
+}
+
+/* ===== LOADING ===== */
+#loading{
 position:fixed;
 inset:0;
 background:#000;
 display:flex;
 align-items:center;
 justify-content:center;
-z-index:9999;
-animation:fadeOut 3s ease 3s forwards;
-}
-
-.intro h1{
-font-size:100px;
-letter-spacing:25px;
+font-size:40px;
 color:#d4af37;
-animation:zoom 2.5s ease;
-}
-
-@keyframes zoom{
-from{transform:scale(0.8);opacity:0;}
-to{transform:scale(1.1);opacity:1;}
-}
-
-@keyframes fadeOut{
-to{opacity:0;visibility:hidden;}
-}
-
-/* =========================
-   HERO
-========================= */
-
-.hero{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 8%;
-background:
-radial-gradient(circle at center,#1a1400,transparent 40%),
-#000;
-}
-
-.hero h1{
-font-size:90px;
-letter-spacing:15px;
-}
-
-.hero span{
-color:#d4af37;
-}
-
-.hero p{
-margin-top:20px;
-opacity:.7;
-line-height:1.8;
-font-size:20px;
-max-width:500px;
-}
-
-.hero img{
-width:380px;
-filter:drop-shadow(0 0 90px #d4af37);
-animation:float 5s infinite;
-}
-
-@keyframes float{
-50%{transform:translateY(-30px);}
-}
-
-/* =========================
-   SCROLL TEXT WALL
-========================= */
-
-.wall{
-padding:150px 15%;
-line-height:2.5;
-font-size:20px;
-color:#aaa;
-}
-
-.wall span{
-color:#d4af37;
-font-weight:bold;
-font-size:28px;
-}
-
-/* =========================
-   STATISTICS
-========================= */
-
-.stats{
-display:flex;
-justify-content:space-around;
-padding:120px 8%;
-text-align:center;
-}
-
-.stats h2{
-font-size:60px;
-color:#d4af37;
-}
-
-/* =========================
-   STORY BLOCKS
-========================= */
-
-.blocks{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px;
-padding:120px 8%;
-}
-
-.block{
-background:#111;
-padding:40px;
-border:1px solid #222;
-transition:.4s;
-}
-
-.block:hover{
-transform:translateY(-10px);
-border-color:#d4af37;
-}
-
-/* =========================
-   LONG STORY SECTION
-========================= */
-
-.long{
-padding:150px 18%;
-font-size:19px;
-line-height:2.6;
-color:#999;
-}
-
-.long b{
-color:#d4af37;
-}
-
-/* =========================
-   PRODUCT CORE
-========================= */
-
-.product{
-padding:150px 8%;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:60px;
-}
-
-.product img{
-width:420px;
-filter:drop-shadow(0 0 100px #d4af37);
-}
-
-.info h1{
-font-size:55px;
-}
-
-.price{
-font-size:45px;
-color:#d4af37;
-margin:20px 0;
-}
-
-input,select{
-width:100%;
-padding:14px;
-margin:8px 0;
-background:#111;
-border:1px solid #333;
-color:#fff;
-}
-
-/* =========================
-   MASSIVE BRAND TEXT
-========================= */
-
-.massive{
-padding:200px 10%;
-text-align:center;
-font-size:30px;
-line-height:2.5;
-color:#777;
-}
-
-.massive span{
-color:#d4af37;
-font-size:60px;
-display:block;
-margin:40px 0;
-}
-
-/* =========================
-   TESTIMONIALS
-========================= */
-
-.testimonials{
-padding:120px 8%;
-}
-
-.t{
-background:#111;
-padding:30px;
-margin:20px 0;
-border-left:4px solid #d4af37;
-}
-
-/* =========================
-   FINAL
-========================= */
-
-.final{
-height:500px;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-background:linear-gradient(#000,#111);
-}
-
-.final h1{
-font-size:70px;
-color:#d4af37;
-letter-spacing:10px;
-}
-
-/* =========================
-   FOOTER
-========================= */
-
-footer{
-padding:40px;
-text-align:center;
-opacity:.6;
-border-top:1px solid #222;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:900px){
-
-.hero,
-.product{
-flex-direction:column;
-text-align:center;
-}
-
-.blocks{
-grid-template-columns:1fr;
-}
-
-.stats{
-flex-direction:column;
-gap:40px;
-}
-
+z-index:999;
 }
 
 </style>
@@ -300,151 +120,170 @@ gap:40px;
 
 <body>
 
-<!-- INTRO -->
-<div class="intro">
-<h1>LOR’</h1>
+<div id="loading">INITIALIZING LOR’ AI...</div>
+
+<div id="ui">
+<div class="logo">LOR’ AI EXPERIENCE</div>
+<div>GLOBAL LUXURY SYSTEM</div>
 </div>
 
-<!-- HERO -->
-<section class="hero">
-
-<div>
-<h1>SOLID<br><span>PERFUME</span></h1>
+<div class="heroText">
+<h1>SOLID PERFUME</h1>
 <p>
-A fragrance does not disappear.<br>
-It becomes part of your identity.
+Not a product.<br>
+A digital identity system generated in real-time.
 </p>
 </div>
 
-<img src="https://i.imgur.com/8Km9tLL.png">
+<!-- AI BOX -->
+<div class="aiBox">
+<div class="aiHeader">LOR’ AI ASSISTANT</div>
 
-</section>
-
-<!-- MASSIVE WALL -->
-<section class="wall">
-
-<span>LOR’</span> is not a product.  
-It is a constructed identity system designed to redefine presence.
-
-Every element of this formulation has been engineered for permanence,  
-not in time — but in memory.
-
-Luxury is not about appearance.  
-It is about impact.
-
-And impact is what remains when everything else fades.
-
-</section>
-
-<!-- STATS -->
-<section class="stats">
-
-<div>
-<h2>12H+</h2>
-<p>Longevity</p>
+<div class="messages" id="chat">
+> Welcome to LOR’ experience<br>
+> Ask about scent, identity, or luxury system...
 </div>
 
-<div>
-<h2>0%</h2>
-<p>Alcohol</p>
+<div class="input">
+<input id="msg" placeholder="Ask LOR’ AI...">
+<button onclick="send()">→</button>
 </div>
-
-<div>
-<h2>100%</h2>
-<p>Identity</p>
-</div>
-
-</section>
-
-<!-- BLOCKS -->
-<section class="blocks">
-
-<div class="block">Luxury is silent dominance.</div>
-<div class="block">Scent becomes behavior influence.</div>
-<div class="block">Presence is engineered, not born.</div>
-
-</section>
-
-<!-- LONG STORY -->
-<section class="long">
-
-<b>LOR’</b> was not designed in a laboratory alone.  
-It was designed in perception theory.
-
-The way humans remember scent is not logical.  
-It is emotional.
-
-And emotion is what we control.
-
-This is why LOR’ does not fade like perfume.  
-It integrates like memory.
-
-Every application is a reinforcement of identity.
-
-Not smell.  
-Not fragrance.  
-Identity.
-
-</section>
-
-<!-- PRODUCT -->
-<section class="product">
-
-<img src="https://i.imgur.com/8Km9tLL.png">
-
-<div class="info">
-
-<h1>LOR’ SIGNATURE</h1>
-
-<div class="price">23 JD</div>
-
-<select>
-<option>For Men</option>
-<option>For Women</option>
-</select>
-
-<input placeholder="Name">
-<input placeholder="Phone">
 
 </div>
 
-</section>
+<canvas id="c"></canvas>
 
-<!-- MASSIVE TEXT -->
-<section class="massive">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-SCENT IS MEMORY
+<script>
 
-<span>LOR’ IS CONTROL</span>
+// ===== SCENE =====
+const scene = new THREE.Scene();
 
-YOU DO NOT WEAR IT  
-YOU BECOME IT
+// fog (luxury depth)
+scene.fog = new THREE.Fog(0x000000, 2, 10);
 
-</section>
+// camera
+const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.z = 5;
 
-<!-- TESTIMONIALS -->
-<section class="testimonials">
+// renderer
+const renderer = new THREE.WebGLRenderer({canvas:document.getElementById("c"),alpha:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
 
-<div class="t">“This doesn’t smell like perfume. It feels like identity.”</div>
-<div class="t">“People react differently when I wear LOR’.”</div>
-<div class="t">“It stays longer than anything I’ve used before.”</div>
+// lights
+const light = new THREE.PointLight(0xd4af37,2);
+light.position.set(2,3,3);
+scene.add(light);
 
-</section>
+const ambient = new THREE.AmbientLight(0xffffff,0.2);
+scene.add(ambient);
 
-<!-- FINAL -->
-<section class="final">
+// ===== 3D BOTTLE =====
+const body = new THREE.Mesh(
+new THREE.CylinderGeometry(0.8,0.8,2,32),
+new THREE.MeshStandardMaterial({color:0x111111,metalness:0.7,roughness:0.2})
+);
 
-<h1>
-THIS IS NOT PERFUME<br>
-THIS IS LOR’
-</h1>
+scene.add(body);
 
-</section>
+// gold ring
+const ring = new THREE.Mesh(
+new THREE.TorusGeometry(0.9,0.05,16,100),
+new THREE.MeshStandardMaterial({color:0xd4af37})
+);
 
-<!-- FOOTER -->
-<footer>
-© 2026 LOR’ — Identity System
-</footer>
+ring.position.y = 0.5;
+scene.add(ring);
+
+// floating particles
+const particlesGeo = new THREE.BufferGeometry();
+const count = 200;
+
+const pos = new Float32Array(count * 3);
+
+for(let i=0;i<count;i++){
+pos[i*3] = (Math.random()-0.5)*10;
+pos[i*3+1] = (Math.random()-0.5)*10;
+pos[i*3+2] = (Math.random()-0.5)*10;
+}
+
+particlesGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+
+const particles = new THREE.Points(
+particlesGeo,
+new THREE.PointsMaterial({color:0xd4af37,size:0.02})
+);
+
+scene.add(particles);
+
+// ===== ANIMATION =====
+function animate(){
+
+requestAnimationFrame(animate);
+
+body.rotation.y += 0.004;
+ring.rotation.y += 0.01;
+
+particles.rotation.y += 0.001;
+
+renderer.render(scene,camera);
+}
+
+animate();
+
+// ===== MOUSE MOVE =====
+document.addEventListener("mousemove",(e)=>{
+let x = (e.clientX/window.innerWidth - 0.5)*2;
+let y = (e.clientY/window.innerHeight - 0.5)*2;
+
+camera.position.x = x;
+camera.position.y = -y;
+camera.lookAt(0,0,0);
+});
+
+// ===== AI FAKE LOGIC =====
+function send(){
+
+let input = document.getElementById("msg");
+let chat = document.getElementById("chat");
+
+let text = input.value;
+
+chat.innerHTML += "<br>> "+text;
+
+let response = "";
+
+if(text.includes("scent")){
+response = "LOR’ scent engineered for long-term identity retention.";
+}
+else if(text.includes("price")){
+response = "23 JD — luxury identity system unit.";
+}
+else{
+response = "LOR’ AI: identity-based fragrance system active.";
+}
+
+setTimeout(()=>{
+chat.innerHTML += "<br>> "+response;
+chat.scrollTop = chat.scrollHeight;
+},600);
+
+input.value="";
+}
+
+// loading
+setTimeout(()=>{
+document.getElementById("loading").style.display="none";
+},2000);
+
+window.addEventListener("resize",()=>{
+camera.aspect = window.innerWidth/window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+</script>
 
 </body>
 </html>
