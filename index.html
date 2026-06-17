@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LOR’ | Luxury Perfume</title>
+<title>LOR’ | Luxury Solid Perfume</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
+
+/* ================= GLOBAL ================= */
 
 *{
 margin:0;
@@ -28,12 +30,12 @@ nav{
 position:fixed;
 top:0;
 width:100%;
-padding:25px 8%;
+padding:30px 8%;
 display:flex;
 justify-content:space-between;
 z-index:10;
-font-size:14px;
-letter-spacing:3px;
+font-size:13px;
+letter-spacing:4px;
 opacity:.8;
 }
 
@@ -45,12 +47,13 @@ display:flex;
 align-items:center;
 justify-content:center;
 text-align:center;
-position:relative;
+flex-direction:column;
+padding:0 10%;
 }
 
 .hero h1{
-font-size:90px;
-letter-spacing:20px;
+font-size:92px;
+letter-spacing:18px;
 font-weight:400;
 }
 
@@ -62,17 +65,8 @@ color:#d4af37;
 margin-top:20px;
 opacity:.6;
 font-size:18px;
-line-height:1.8;
-}
-
-/* subtle glow */
-.glow{
-position:absolute;
-width:500px;
-height:500px;
-background:radial-gradient(circle,#d4af37 0%,transparent 70%);
-opacity:.08;
-filter:blur(40px);
+max-width:500px;
+line-height:2;
 }
 
 /* ================= PRODUCT SECTION ================= */
@@ -82,28 +76,27 @@ min-height:100vh;
 display:flex;
 align-items:center;
 justify-content:space-between;
-padding:0 10%;
-gap:80px;
+padding:0 12%;
+gap:100px;
 }
 
 .product img{
 width:420px;
-filter:drop-shadow(0 40px 80px rgba(212,175,55,0.15));
-transform:translateY(20px);
-transition:1s ease;
+filter:drop-shadow(0 50px 90px rgba(212,175,55,0.15));
 }
 
 .product-text h2{
-font-size:50px;
+font-size:48px;
 font-weight:400;
 letter-spacing:6px;
+margin-bottom:20px;
 }
 
 .product-text p{
-margin-top:20px;
 opacity:.6;
-line-height:2;
+line-height:2.2;
 max-width:500px;
+font-size:18px;
 }
 
 /* ================= STORY ================= */
@@ -114,12 +107,12 @@ display:flex;
 align-items:center;
 justify-content:center;
 text-align:center;
-padding:0 15%;
+padding:0 18%;
 }
 
 .story p{
-font-size:22px;
-line-height:2.2;
+font-size:24px;
+line-height:2.4;
 opacity:.7;
 }
 
@@ -127,10 +120,35 @@ opacity:.7;
 color:#d4af37;
 }
 
-/* ================= FINAL CTA ================= */
+/* ================= QUOTE ================= */
+
+.quote{
+min-height:80vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+flex-direction:column;
+padding:0 10%;
+}
+
+.quote h2{
+font-size:60px;
+font-weight:400;
+letter-spacing:10px;
+}
+
+.quote p{
+margin-top:30px;
+opacity:.6;
+max-width:600px;
+line-height:2;
+}
+
+/* ================= CTA ================= */
 
 .cta{
-min-height:80vh;
+min-height:60vh;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -138,20 +156,14 @@ flex-direction:column;
 text-align:center;
 }
 
-.cta h2{
-font-size:60px;
-letter-spacing:10px;
-font-weight:400;
-}
-
 button{
-margin-top:40px;
-padding:15px 40px;
+margin-top:30px;
+padding:15px 45px;
 background:#d4af37;
 border:none;
 cursor:pointer;
+letter-spacing:3px;
 font-weight:bold;
-letter-spacing:2px;
 transition:.3s;
 }
 
@@ -163,8 +175,8 @@ transform:scale(1.05);
 
 .hidden{
 opacity:0;
-transform:translateY(40px);
-transition:1s ease;
+transform:translateY(50px);
+transition:1.2s ease;
 }
 
 .show{
@@ -180,19 +192,15 @@ transform:translateY(0);
 
 <nav>
 <div>LOR’</div>
-<div>PERFUME · 2026</div>
+<div>SOLID PERFUME</div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-<div class="glow"></div>
-
-<div>
 <h1>LOR’ <span>SIGNATURE</span></h1>
 <p>
-A solid perfume crafted for presence, not scent.
+A fragrance designed not to be noticed — but to be remembered.
 </p>
-</div>
 </section>
 
 <!-- PRODUCT -->
@@ -203,8 +211,7 @@ A solid perfume crafted for presence, not scent.
 <div class="product-text">
 <h2>THE OBJECT</h2>
 <p>
-A minimalist solid perfume designed with premium wax base and long-lasting fragrance oils.
-Built for elegance. Not excess.
+A solid perfume crafted with precision. Minimal composition, long-lasting presence, and skin-anchored scent memory.
 </p>
 </div>
 
@@ -215,10 +222,17 @@ Built for elegance. Not excess.
 
 <p>
 <span>LOR’</span> is not designed to attract attention.  
-It is designed to define presence.
+It is designed to define identity through silence, presence, and restraint.
+</p>
 
-Luxury is not noise.  
-Luxury is control, silence, and memory.
+</section>
+
+<!-- QUOTE -->
+<section class="quote hidden">
+
+<h2>LESS. BUT ETERNAL.</h2>
+<p>
+Luxury is not what you add. It is what you remove until only essence remains.
 </p>
 
 </section>
@@ -228,14 +242,14 @@ Luxury is control, silence, and memory.
 
 <h2>DISCOVER LOR’</h2>
 <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
-EXPLORE AGAIN
+EXPLORE
 </button>
 
 </section>
 
 <script>
 
-// scroll reveal (minimal + smooth)
+// scroll reveal (smooth luxury feel)
 const elements = document.querySelectorAll('.hidden');
 
 const observer = new IntersectionObserver(entries=>{
