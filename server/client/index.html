@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>مساعد صرح المحاسبي الذكي</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      direction: rtl;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 30px auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      color: #cbd5e1;
+    }
+
+    .chat-box {
+      height: 520px;
+      overflow-y: auto;
+      padding: 20px;
+      background: #f8fafc;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      padding: 12px 15px;
+      border-radius: 12px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      background: #dbeafe;
+      margin-right: 120px;
+    }
+
+    .bot {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      margin-left: 120px;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      background: white;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      background: #0f172a;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e293b;
+    }
+
+    .examples {
+      padding: 15px 20px;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .examples span {
+      display: inline-block;
+      background: #f1f5f9;
+      padding: 7px 10px;
+      border-radius: 8px;
+      margin: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>مساعد صرح المحاسبي الذكي</h1>
+      <p>اسأل عن القيود، الرواتب، الضرائب، شجرة الحسابات، والتسويات البنكية</p>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">
+        أهلاً بك، أنا مساعد صرح المحاسبي الذكي. كيف يمكنني مساعدتك محاسبياً اليوم؟
+      </div>
+    </div>
+
+    <div class="examples">
+      أمثلة:
+      <span onclick="setExample('اعمل قيد شراء بضاعة نقداً بقيمة 5000 دينار')">قيد شراء بضاعة</span>
+      <span onclick="setExample('ساعدني في إعداد شجرة حسابات لشركة تجارية')">شجرة حسابات</span>
+      <span onclick="setExample('اشرح لي قيد الرواتب والضمان الاجتماعي')">قيد الرواتب</span>
+      <span onclick="setExample('كيف أعمل مذكرة تسوية بنك؟')">تسوية البنك</span>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="اكتب سؤالك هنا..." onkeydown="handleEnter(event)" />
+      <button onclick="sendMessage()">إرسال</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.className = "message " + sender;
+      msg.textContent = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function setExample(text) {
+      userInput.value = text;
+      userInput.focus();
+    }
+
+    function handleEnter(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+
+      if (!message) return;
+
+      addMessage(message, "user");
+      userInput.value = "";
+
+      addMessage("جاري التفكير...", "bot");
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+
+        const loadingMessages = document.querySelectorAll(".bot");
+        loadingMessages[loadingMessages.length - 1].remove();
+
+        if (data.reply) {
+          addMessage(data.reply, "bot");
+        } else {
+          addMessage("حدث خطأ، يرجى المحاولة مرة أخرى.", "bot");
+        }
+      } catch (error) {
+        const loadingMessages = document.querySelectorAll(".bot");
+        loadingMessages[loadingMessages.length - 1].remove();
+
+        addMessage("تعذر الاتصال بالسيرفر. تأكد أن السيرفر يعمل.", "bot");
+      }
+    }
+  </script>
+
+</body>
+</html>
