@@ -284,3 +284,19 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
   .dialog { left: 104px; right: 104px; }
 }
 .reduced *, .reduced *::before, .reduced *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+
+/* gift countdown */
+.gift-lock {
+  aspect-ratio: 4 / 3; border-radius: 14px; border: 6px solid #fff; box-shadow: var(--shadow);
+  background: radial-gradient(circle at 50% 30%, var(--rose), var(--wine));
+  color: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px; text-align: center;
+}
+.gift-lock p { margin: 0; font-family: var(--display); font-size: 1rem; color: var(--gold-soft); }
+.gl-icon { font-size: 2.6rem; line-height: 1; animation: pulse-gift 1.6s ease-in-out infinite; }
+.gl-time { display: flex; gap: 6px; direction: rtl; }
+.gl-time span { display: flex; flex-direction: column; align-items: center; min-width: 46px; padding: 4px 2px; border-radius: 10px; background: rgba(255, 248, 242, .14); font-size: .7rem; }
+.gl-time b { font-family: var(--display); font-weight: 400; font-size: 1.5rem; line-height: 1.1; color: #fff; font-variant-numeric: tabular-nums; }
+.gift-lock small { font-size: .72rem; opacity: .85; }
+.end-card figure img.revealed { animation: giftReveal 1.2s ease; }
+@keyframes giftReveal { from { opacity: 0; transform: scale(.85) rotate(-3deg); filter: blur(8px); } }
+@keyframes pulse-gift { 50% { transform: scale(1.12); } }

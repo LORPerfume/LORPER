@@ -82,7 +82,16 @@
   <!-- ending -->
   <div id="ending" class="screen ending" hidden>
     <div class="end-card">
-      <figure><img id="giftImg" alt="الهدية"><figcaption id="giftCaption"></figcaption></figure>
+      <figure>
+        <img id="giftImg" alt="الهدية">
+        <div id="giftLock" class="gift-lock" hidden>
+          <div class="gl-icon">🎁</div>
+          <p>صورة هديتك بتنكشف بعد</p>
+          <div class="gl-time" id="giftCountdown"></div>
+          <small id="giftWhen"></small>
+        </div>
+        <figcaption id="giftCaption"></figcaption>
+      </figure>
       <div class="end-text">
         <h1 id="endTitle"></h1>
         <p id="endMsg"></p>

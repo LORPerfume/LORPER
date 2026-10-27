@@ -558,8 +558,30 @@
 
   // ---------- ending ----------
   UI.showEnding = function () {
-    UI.setImg($('giftImg'), UI.giftURL(), () => (phCache.gift = placeholder('🎁 الهدية', 'تعذّر تحميل صورة الهدية', 330)));
-    $('giftCaption').textContent = C.finale.giftImage ? '' : G.fmt(C.finale.giftCaption);
+    // gift photo stays hidden behind a countdown until finale.unlockAt
+    const unlock = Date.parse(C.finale.unlockAt || '');
+    const img = $('giftImg'), lock = $('giftLock');
+    let shown = false;
+    const pad = n => String(n).padStart(2, '0');
+    const tick = () => {
+      const left = Math.floor((unlock - Date.now()) / 1000);
+      if (isFinite(unlock) && left > 0) {
+        img.hidden = true; lock.hidden = false; $('giftCaption').textContent = '';
+        const parts = [[Math.floor(left / 86400), 'يوم'], [Math.floor(left / 3600) % 24, 'ساعة'], [Math.floor(left / 60) % 60, 'دقيقة'], [left % 60, 'ثانية']];
+        $('giftCountdown').replaceChildren(...parts.map(([v, l]) => el('span', {}, el('b', { text: pad(v) }), l)));
+        return;
+      }
+      clearInterval(UI._giftTimer);
+      const wasLocked = !lock.hidden;
+      lock.hidden = true; img.hidden = false;
+      if (!shown) { shown = true; UI.setImg(img, UI.giftURL(), () => (phCache.gift = placeholder('🎁 الهدية', 'تعذّر تحميل صورة الهدية', 330))); }
+      $('giftCaption').textContent = C.finale.giftImage ? '' : G.fmt(C.finale.giftCaption);
+      if (wasLocked) { img.classList.remove('revealed'); void img.offsetWidth; img.classList.add('revealed'); G.audio.unlock(); }
+    };
+    $('giftWhen').textContent = G.fmt(C.finale.unlockLabel || '');
+    clearInterval(UI._giftTimer);
+    tick();
+    if (isFinite(unlock) && Date.now() < unlock) UI._giftTimer = setInterval(tick, 1000);
     $('endTitle').textContent = G.fmt(C.finale.title);
     $('endMsg').textContent = G.fmt(C.finale.message);
     $('endSig').textContent = '— ' + C.fromName;
