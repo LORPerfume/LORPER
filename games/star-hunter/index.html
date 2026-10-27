@@ -1,0 +1,337 @@
+<title>صياد النجوم</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Tajawal:wght@400;700&display=swap">
+<style>
+  /* Layout: full-screen canvas sky, HUD pinned to the top, overlay cards centered for menus */
+  :root {
+    --sky-top: #14123a;
+    --sky-bottom: #3a1f4f;
+    --ink: #fdf3e1;
+    --muted: #b9add6;
+    --star: #ffcf5a;
+    --meteor: #ff6b5e;
+    --card: rgba(20, 16, 52, 0.82);
+    --display: "Lalezar", "Tajawal", system-ui, sans-serif;
+    --body: "Tajawal", system-ui, sans-serif;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body {
+    background: var(--sky-top);
+    color: var(--ink);
+    font-family: var(--body);
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .hud {
+    position: fixed; inset: 0 0 auto;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex; justify-content: space-between; align-items: center;
+    pointer-events: none; direction: rtl;
+  }
+  .hud .score { font-family: var(--display); font-size: 2rem; line-height: 1; color: var(--star); font-variant-numeric: tabular-nums; }
+  .hud .lives { font-size: 1.4rem; letter-spacing: 2px; }
+  .hud .best { font-size: .85rem; color: var(--muted); }
+
+  .overlay {
+    position: fixed; inset: 0;
+    display: grid; place-items: center;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    direction: rtl; text-align: center;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid rgba(255, 207, 90, .25);
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: min(340px, 100%);
+    display: flex; flex-direction: column; gap: 14px; align-items: center;
+    backdrop-filter: blur(6px);
+  }
+  .card h1 { font-family: var(--display); font-weight: 400; font-size: 3rem; line-height: 1; margin: 0; color: var(--star); text-wrap: balance; }
+  .card h2 { font-family: var(--display); font-weight: 400; font-size: 2.2rem; margin: 0; }
+  .card p { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+  .legend { display: flex; gap: 18px; justify-content: center; font-size: .95rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .big { font-family: var(--display); font-size: 4rem; line-height: 1; color: var(--star); font-variant-numeric: tabular-nums; }
+  button {
+    font-family: var(--display); font-size: 1.5rem;
+    background: var(--star); color: #2a1740;
+    border: 0; border-radius: 999px;
+    padding: 12px 40px; cursor: pointer;
+    box-shadow: 0 6px 0 #c9922a;
+    transition: transform .08s;
+  }
+  button:active { transform: translateY(4px); box-shadow: 0 2px 0 #c9922a; }
+  button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .newbest { color: var(--meteor); font-weight: 700; }
+</style>
+
+<canvas id="game"></canvas>
+
+<div class="hud" id="hud" hidden>
+  <div>
+    <div class="score" id="score">0</div>
+    <div class="best" id="bestHud">الأفضل: 0</div>
+  </div>
+  <div class="lives" id="lives">❤️❤️❤️</div>
+</div>
+
+<div class="overlay" id="menu">
+  <div class="card">
+    <h1>صياد النجوم</h1>
+    <p>اسحب إصبعك على الشاشة لتحريك المركبة. اجمع النجوم وابتعد عن النيازك.</p>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--star)"></i> نجمة +1</span>
+      <span><i class="dot" style="background:var(--meteor)"></i> نيزك</span>
+    </div>
+    <button id="startBtn">ابدأ</button>
+    <p id="bestMenu"></p>
+  </div>
+</div>
+
+<div class="overlay" id="over" hidden>
+  <div class="card">
+    <h2>انتهت اللعبة</h2>
+    <div class="big" id="finalScore">0</div>
+    <p id="finalBest"></p>
+    <button id="againBtn">العب مرة ثانية</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const $ = id => document.getElementById(id);
+  const hud = $('hud'), menu = $('menu'), over = $('over');
+
+  let W = 0, H = 0, DPR = 1;
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ---- storage (safe) ----
+  const load = () => { try { return +localStorage.getItem('starHunterBest') || 0; } catch { return 0; } };
+  const save = v => { try { localStorage.setItem('starHunterBest', v); } catch {} };
+  let best = load();
+
+  // ---- sound ----
+  let actx = null;
+  function beep(freq, dur, type = 'sine', vol = 0.15) {
+    if (!actx) return;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+    o.connect(g).connect(actx.destination);
+    o.start(); o.stop(actx.currentTime + dur);
+  }
+  const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch {} };
+
+  // ---- background stars ----
+  const bg = Array.from({ length: 90 }, () => ({
+    x: Math.random(), y: Math.random(), r: Math.random() * 1.5 + .3, s: Math.random() * .3 + .05
+  }));
+
+  // ---- game state ----
+  let state = 'menu';
+  let ship, items, particles, score, lives, elapsed, spawnT, invuln, last;
+
+  function reset() {
+    ship = { x: W / 2, y: H * 0.8, r: 18, tx: W / 2, ty: H * 0.8 };
+    items = []; particles = [];
+    score = 0; lives = 3; elapsed = 0; spawnT = 0; invuln = 0;
+    updateHud();
+  }
+
+  function updateHud() {
+    $('score').textContent = score;
+    $('bestHud').textContent = 'الأفضل: ' + best;
+    $('lives').textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3 - lives));
+  }
+
+  function start() {
+    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} }
+    reset();
+    state = 'play';
+    menu.hidden = true; over.hidden = true; hud.hidden = false;
+  }
+
+  function gameOver() {
+    state = 'over';
+    const isBest = score > best;
+    if (isBest) { best = score; save(best); }
+    $('finalScore').textContent = score;
+    $('finalBest').innerHTML = isBest ? '<span class="newbest">رقم قياسي جديد!</span>' : 'الأفضل: ' + best;
+    hud.hidden = true; over.hidden = false;
+    beep(180, .5, 'sawtooth', .12);
+  }
+
+  $('startBtn').onclick = start;
+  $('againBtn').onclick = start;
+  $('bestMenu').textContent = best ? 'أفضل نتيجة: ' + best : '';
+
+  // ---- input: relative drag, so the finger never covers the ship ----
+  let dragging = false, lastX = 0, lastY = 0;
+  canvas.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+  window.addEventListener('pointermove', e => {
+    if (!dragging || state !== 'play') return;
+    const k = 1.4;
+    ship.tx = Math.max(ship.r, Math.min(W - ship.r, ship.tx + (e.clientX - lastX) * k));
+    ship.ty = Math.max(ship.r + 60, Math.min(H - ship.r, ship.ty + (e.clientY - lastY) * k));
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  window.addEventListener('pointerup', () => dragging = false);
+  window.addEventListener('pointercancel', () => dragging = false);
+
+  // ---- spawning ----
+  function spawn() {
+    const level = 1 + elapsed / 15;
+    const isStar = Math.random() < 0.45;
+    const r = isStar ? 12 : 14 + Math.random() * 16;
+    items.push({
+      kind: isStar ? 'star' : 'meteor',
+      x: r + Math.random() * (W - 2 * r), y: -r * 2, r,
+      vy: (120 + Math.random() * 80) * Math.min(level, 3.5),
+      vx: isStar ? 0 : (Math.random() - .5) * 60,
+      rot: 0, vr: (Math.random() - .5) * 4
+    });
+  }
+
+  function burst(x, y, color, n) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, s = 60 + Math.random() * 200;
+      particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: .6, color });
+    }
+  }
+
+  // ---- update ----
+  function update(dt) {
+    for (const s of bg) { s.y += s.s * dt * (state === 'play' ? 0.6 : 0.15); if (s.y > 1) { s.y = 0; s.x = Math.random(); } }
+    for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; }
+    particles = particles.filter(p => p.life > 0);
+    if (state !== 'play') return;
+
+    elapsed += dt;
+    invuln = Math.max(0, invuln - dt);
+    ship.x += (ship.tx - ship.x) * Math.min(1, dt * 18);
+    ship.y += (ship.ty - ship.y) * Math.min(1, dt * 18);
+
+    spawnT -= dt;
+    if (spawnT <= 0) { spawn(); spawnT = Math.max(0.22, 0.8 - elapsed * 0.012); }
+
+    for (const it of items) {
+      it.y += it.vy * dt; it.x += it.vx * dt; it.rot += it.vr * dt;
+      const dx = it.x - ship.x, dy = it.y - ship.y;
+      if (dx * dx + dy * dy < (it.r + ship.r * 0.8) ** 2) {
+        if (it.kind === 'star') {
+          score++; it.dead = true;
+          burst(it.x, it.y, '#ffcf5a', 12);
+          beep(660 + (score % 5) * 80, .12, 'triangle');
+        } else if (!invuln) {
+          lives--; it.dead = true; invuln = 1.5;
+          burst(it.x, it.y, '#ff6b5e', 24);
+          beep(120, .3, 'square', .1); buzz(120);
+          if (lives <= 0) { burst(ship.x, ship.y, '#fdf3e1', 40); updateHud(); gameOver(); return; }
+        }
+        updateHud();
+      }
+    }
+    items = items.filter(it => !it.dead && it.y < H + 60);
+  }
+
+  // ---- draw ----
+  function drawStar(x, y, r, rot) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const rr = i % 2 ? r * 0.45 : r, a = i * Math.PI / 5 - Math.PI / 2;
+      ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#ffcf5a'; ctx.shadowColor = '#ffcf5a'; ctx.shadowBlur = 16; ctx.fill();
+    ctx.restore();
+  }
+
+  function drawMeteor(it) {
+    ctx.save(); ctx.translate(it.x, it.y);
+    const g = ctx.createLinearGradient(0, -it.r * 3, 0, 0);
+    g.addColorStop(0, 'rgba(255,107,94,0)'); g.addColorStop(1, 'rgba(255,107,94,.5)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(-it.r * .7, 0); ctx.lineTo(0, -it.r * 3.2); ctx.lineTo(it.r * .7, 0); ctx.fill();
+    ctx.rotate(it.rot);
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4, rr = it.r * (0.8 + ((i * 37) % 5) / 20);
+      ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#8a4a52'; ctx.fill();
+    ctx.strokeStyle = '#ff6b5e'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawShip() {
+    if (invuln && Math.floor(invuln * 10) % 2) return;
+    const { x, y, r } = ship;
+    ctx.save(); ctx.translate(x, y);
+    // flame
+    const f = 8 + Math.random() * 8;
+    ctx.fillStyle = '#ff9a4a';
+    ctx.beginPath(); ctx.moveTo(-6, r * .7); ctx.lineTo(0, r * .7 + f); ctx.lineTo(6, r * .7); ctx.fill();
+    // body
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 1.2); ctx.lineTo(r * .9, r * .8); ctx.lineTo(0, r * .45); ctx.lineTo(-r * .9, r * .8);
+    ctx.closePath();
+    ctx.fillStyle = '#fdf3e1'; ctx.shadowColor = '#b9add6'; ctx.shadowBlur = 14; ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#5a7bff';
+    ctx.beginPath(); ctx.arc(0, -r * .2, r * .25, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function draw() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#14123a'); g.addColorStop(1, '#3a1f4f');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fdf3e1';
+    for (const s of bg) { ctx.globalAlpha = .3 + s.r / 3; ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2); ctx.fill(); }
+    ctx.globalAlpha = 1;
+
+    if (state === 'play') {
+      for (const it of items) it.kind === 'star' ? drawStar(it.x, it.y, it.r, it.rot) : drawMeteor(it);
+      drawShip();
+    }
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life / .6); ctx.fillStyle = p.color;
+      ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function loop(t) {
+    const dt = Math.min(0.033, ((t - (last || t)) / 1000));
+    last = t;
+    update(dt); draw();
+    requestAnimationFrame(loop);
+  }
+  reset();
+  requestAnimationFrame(loop);
+})();
+</script>
