@@ -3,14 +3,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Tajawal:wght@400;700&display=swap">
 <style>
-  /* Layout: full-screen garden canvas, task pill on top, dialog card at the bottom, menus centered */
+  /* Layout: one landscape stage (rotated 90° when the phone stays upright), 3D canvas under a 2D UI canvas, task pill top, dialog bottom */
   :root {
-    --blush: #fff1f4;
+    --sky: #bfe3f5;
     --rasp: #d6336c;
     --rasp-deep: #a61e4d;
     --ink: #3b1f2b;
     --muted: #8a5a6b;
-    --gold: #f6b93b;
     --card: rgba(255, 241, 244, 0.96);
     --display: "Lalezar", "Tajawal", system-ui, sans-serif;
     --body: "Tajawal", system-ui, sans-serif;
@@ -18,7 +17,7 @@
   [hidden] { display: none !important; }
   html, body { height: 100%; }
   body {
-    background: #9fd4a0;
+    background: var(--sky);
     color: var(--ink);
     font-family: var(--body);
     overflow: hidden;
@@ -27,94 +26,94 @@
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
-  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #stage { position: fixed; top: 0; left: 0; overflow: hidden; transform-origin: 0 0; }
+  #gl, #ui { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #ui { pointer-events: none; }
 
   .task {
-    position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px);
-    left: max(16px, env(safe-area-inset-left, 0px));
-    right: max(16px, env(safe-area-inset-right, 0px));
-    margin: 0 auto; max-width: 420px;
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: max-content; max-width: min(520px, 70%);
     background: var(--card); border-radius: 999px;
-    padding: 10px 18px; text-align: center; direction: rtl;
-    font-weight: 700; font-size: 1.05rem;
+    padding: 8px 18px; text-align: center; direction: rtl;
+    font-weight: 700; font-size: 1rem;
     box-shadow: 0 4px 14px rgba(166, 30, 77, .2);
     pointer-events: none;
   }
-
   .dialog {
-    position: fixed;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-    left: max(16px, env(safe-area-inset-left, 0px));
-    right: max(16px, env(safe-area-inset-right, 0px));
-    margin: 0 auto; max-width: 460px;
+    position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); left: 50%; transform: translateX(-50%);
+    width: min(560px, calc(100% - 32px));
     background: var(--card); border: 3px solid var(--rasp);
-    border-radius: 20px; padding: 16px 18px 12px;
+    border-radius: 18px; padding: 12px 18px 8px;
     direction: rtl; cursor: pointer;
     box-shadow: 0 8px 24px rgba(59, 31, 43, .25);
-    animation: pop .25s ease-out;
+    animation: fade .25s ease-out;
   }
-  .dialog p { margin: 0 0 8px; font-size: 1.15rem; line-height: 1.6; }
+  .dialog p { margin: 0 0 4px; font-size: 1.1rem; line-height: 1.6; }
   .dialog small { color: var(--muted); display: block; text-align: left; }
 
   .overlay {
-    position: fixed; inset: 0; display: grid; place-items: center;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    direction: rtl; text-align: center;
-    background: rgba(59, 31, 43, .35);
+    position: absolute; inset: 0; display: grid; place-items: center;
+    padding: 12px 16px; direction: rtl;
+    background: rgba(59, 31, 43, .3);
   }
   .card {
-    background: var(--card); border-radius: 26px;
-    padding: 28px 22px; width: min(360px, 100%);
-    display: flex; flex-direction: column; gap: 14px; align-items: center;
+    background: var(--card); border-radius: 24px;
+    padding: 20px 24px; width: min(560px, 100%); max-height: 100%; overflow: auto;
+    display: flex; gap: 20px; align-items: center;
     box-shadow: 0 12px 40px rgba(59, 31, 43, .3);
-    animation: pop .35s ease-out;
+    animation: fade .35s ease-out;
   }
-  .card .emoji { font-size: 3.4rem; line-height: 1; }
-  .card .portrait { width: 96px; height: auto; filter: drop-shadow(0 4px 10px rgba(166, 30, 77, .3)); }
-  .card h1 { font-family: var(--display); font-weight: 400; font-size: 2.4rem; line-height: 1.15; margin: 0; color: var(--rasp); text-wrap: balance; }
-  .card p { margin: 0; font-size: 1.1rem; line-height: 1.7; color: var(--ink); }
-  .card .from { color: var(--muted); font-size: 1rem; }
+  .card .text { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; min-width: 0; }
+  .card .portrait { width: 104px; flex: none; filter: drop-shadow(0 4px 10px rgba(166, 30, 77, .3)); }
+  .card .emoji { font-size: 4rem; line-height: 1; flex: none; }
+  .card h1 { font-family: var(--display); font-weight: 400; font-size: 2rem; line-height: 1.15; margin: 0; color: var(--rasp); text-wrap: balance; }
+  .card p { margin: 0; font-size: 1.05rem; line-height: 1.6; }
+  .card .hint, .card .from { color: var(--muted); font-size: .95rem; }
   button {
-    font-family: var(--display); font-size: 1.4rem;
+    font-family: var(--display); font-size: 1.3rem;
     background: var(--rasp); color: #fff;
-    border: 0; border-radius: 999px; padding: 10px 36px; cursor: pointer;
+    border: 0; border-radius: 999px; padding: 8px 32px; cursor: pointer;
     box-shadow: 0 5px 0 var(--rasp-deep); transition: transform .08s;
   }
   button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--rasp-deep); }
   button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-  @keyframes pop { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .dialog, .card { animation: none; } }
 </style>
 
-<canvas id="game"></canvas>
-
-<div class="task" id="task" hidden></div>
-
-<div class="dialog" id="dialog" hidden>
-  <p id="dialogText"></p>
-  <small>اضغطي للمتابعة ◂</small>
-</div>
-
-<div class="overlay" id="startScreen">
-  <div class="card">
-    <img class="portrait" src="face.png" alt="" onerror="this.hidden=true">
-    <h1 id="startTitle"></h1>
-    <p>في هدية مستنياكِ آخر الطريق. خلّصي المهام لتوصليلها.</p>
-    <button id="startBtn">يلا نبلّش</button>
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <canvas id="ui"></canvas>
+  <div class="task" id="task" hidden></div>
+  <div class="dialog" id="dialog" hidden>
+    <p id="dialogText"></p>
+    <small>اضغطي للمتابعة ◂</small>
+  </div>
+  <div class="overlay" id="startScreen">
+    <div class="card">
+      <img class="portrait" src="face.png" alt="" onerror="this.hidden=true">
+      <div class="text">
+        <h1 id="startTitle"></h1>
+        <p>امشي بالجنينة وخلّصي المهام لتوصلي للهدية.</p>
+        <p class="hint">إصبع على يسار الشاشة للمشي، وإصبع على يمينها لتلفّي الكاميرا.</p>
+        <button id="startBtn">يلا نبلّش</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="finalScreen" hidden>
+    <div class="card">
+      <div class="emoji">🎁</div>
+      <div class="text">
+        <h1 id="finalTitle"></h1>
+        <p id="finalMsg"></p>
+        <p class="from" id="finalFrom"></p>
+        <button id="againBtn">العبي من جديد</button>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="overlay" id="finalScreen" hidden>
-  <div class="card">
-    <div class="emoji">🎁</div>
-    <h1 id="finalTitle"></h1>
-    <p id="finalMsg"></p>
-    <p class="from" id="finalFrom"></p>
-    <button id="againBtn">العبي من جديد</button>
-  </div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // ================== عدّل هون ==================
 const CONFIG = {
@@ -125,21 +124,37 @@ const CONFIG = {
 // ==============================================
 
 (() => {
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
   const $ = id => document.getElementById(id);
-
-  let W = 0, H = 0;
-  function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth; H = window.innerHeight;
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
+  const PI2 = Math.PI * 2;
   $('startTitle').textContent = 'عيد ميلاد سعيد يا ' + CONFIG.name;
+
+  // ---------- landscape stage ----------
+  const stageEl = $('stage'), glc = $('gl'), uic = $('ui'), uctx = uic.getContext('2d');
+  const renderer = new THREE.WebGLRenderer({ canvas: glc, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#bfe3f5');
+  scene.fog = new THREE.Fog('#bfe3f5', 22, 50);
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 120);
+
+  let SW, LW, LH, rotated = false;
+  function layout() {
+    SW = window.innerWidth; const SH = window.innerHeight;
+    rotated = SH > SW;
+    LW = rotated ? SH : SW; LH = rotated ? SW : SH;
+    stageEl.style.width = LW + 'px'; stageEl.style.height = LH + 'px';
+    stageEl.style.transform = rotated ? `translate(${SW}px, 0) rotate(90deg)` : 'none';
+    renderer.setSize(LW, LH, false);
+    camera.aspect = LW / LH; camera.updateProjectionMatrix();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    uic.width = LW * dpr; uic.height = LH * dpr;
+    uctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', layout);
+  layout();
+  const toLocal = e => rotated ? { x: e.clientY, y: SW - e.clientX } : { x: e.clientX, y: e.clientY };
 
   // ---------- sound ----------
   let actx = null;
@@ -168,41 +183,248 @@ const CONFIG = {
     for (const [n, b] of song) { tone(N[n], t, b * .42, 'triangle', .18); t += b * .42; }
   }
 
-  const faceImg = new Image();
-  faceImg.src = 'face.png';
+  // ---------- helpers ----------
+  const lam = (color, extra) => new THREE.MeshLambertMaterial(Object.assign({ color }, extra || {}));
+  function add(parent, geo, color, x = 0, y = 0, z = 0, opts = {}) {
+    const m = new THREE.Mesh(geo, opts.mat || lam(color, opts.flat ? { flatShading: true } : null));
+    m.position.set(x, y, z);
+    m.castShadow = opts.cast !== false;
+    m.receiveShadow = !!opts.receive;
+    parent.add(m);
+    return m;
+  }
+  function emojiSprite(ch, size = 0.8, bubble = false) {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d');
+    if (bubble) {
+      g.fillStyle = '#fff';
+      g.beginPath(); g.arc(64, 56, 50, 0, PI2); g.fill();
+      g.beginPath(); g.moveTo(46, 96); g.lineTo(60, 126); g.lineTo(78, 96); g.fill();
+    }
+    g.font = '64px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(ch, 64, bubble ? 58 : 68);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true }));
+    s.scale.set(size, size, 1);
+    return s;
+  }
+  // old 2D map pixels -> 3D ground units
+  const P = (x, y) => ({ x: x / 40 - 12.5, z: y / 40 - 17.5 });
+
+  // ---------- light ----------
+  scene.add(new THREE.HemisphereLight('#ffffff', '#6a9f69', 0.55));
+  const sun = new THREE.DirectionalLight('#fff3e0', 0.7);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024);
+  Object.assign(sun.shadow.camera, { left: -14, right: 14, top: 14, bottom: -14, near: 1, far: 50 });
+  scene.add(sun, sun.target);
 
   // ---------- world ----------
-  const WW = 1000, WH = 1400;
-  const house = { x: 350, y: 60, w: 300, h: 240 };
-  const pond = { x: 780, y: 1050, r: 110 };
-  const trees = [[100, 350], [900, 430], [250, 600], [720, 700], [110, 820], [890, 850], [370, 1060], [560, 1360], [60, 1150], [940, 1180]]
-    .map(([x, y]) => ({ x, y }));
-  const rosePos = [[150, 480], [870, 600], [200, 1000], [430, 1250], [880, 1320]];
-  const candlePos = [[120, 180], [900, 150], [150, 1330]];
-  const fish = { x: 640, y: 990 };
-  const cat = { x: 730, y: 370 };
-  const cake = { x: 300, y: 770 };
-  const gift = { x: 500, y: 380 };
+  const ground = add(scene, new THREE.PlaneGeometry(90, 90), '#8fce8a', 0, 0, 0, { cast: false, receive: true });
+  ground.rotation.x = -Math.PI / 2;
+  const path = add(scene, new THREE.PlaneGeometry(2.2, 10), '#f3dfc1', 0, 0.01, -5, { cast: false, receive: true });
+  path.rotation.x = -Math.PI / 2;
+  // hedge around the garden
+  [[0, -17.9, 26, 0.8], [0, 17.9, 26, 0.8], [-12.9, 0, 0.8, 36.6], [12.9, 0, 0.8, 36.6]].forEach(([x, z, w, d]) =>
+    add(scene, new THREE.BoxGeometry(w, 0.9, d), '#4f9d5b', x, 0.45, z, { receive: true }));
 
-  // deterministic grass decorations
+  // pond
+  const pond = { ...P(780, 1050), r: 2.75 };
+  add(scene, new THREE.CylinderGeometry(pond.r, pond.r, 0.06, 40), '#7ec4e8', pond.x, 0.03, pond.z, { cast: false, receive: true });
+  const rim = add(scene, new THREE.TorusGeometry(pond.r, 0.18, 8, 40), '#d9d2c5', pond.x, 0.06, pond.z, { flat: true });
+  rim.rotation.x = -Math.PI / 2;
+  [[-0.9, 0.6], [0.8, -0.7], [0.3, 1.1]].forEach(([dx, dz]) =>
+    add(scene, new THREE.CylinderGeometry(0.35, 0.35, 0.03, 12), '#6bbf6e', pond.x + dx, 0.08, pond.z + dz, { cast: false }));
+
+  // house
+  const houseRect = { x0: -3.75, x1: 3.75, z0: -16, z1: -10 };
+  const house = new THREE.Group(); house.position.set(0, 0, -13); scene.add(house);
+  add(house, new THREE.BoxGeometry(7, 3.2, 5.6), '#ffe3ea', 0, 1.6, 0, { receive: true });
+  const roof = add(house, new THREE.ConeGeometry(5.3, 2.6, 4), '#d6336c', 0, 4.5, 0, { flat: true });
+  roof.rotation.y = Math.PI / 4; roof.scale.z = 0.85;
+  add(house, new THREE.BoxGeometry(1.3, 2.1, 0.1), '#a61e4d', 0, 1.05, 2.85);
+  add(house, new THREE.SphereGeometry(0.07, 8, 6), '#f6b93b', 0.4, 1.05, 2.92);
+  [-2.3, 2.3].forEach(x => {
+    add(house, new THREE.BoxGeometry(1.4, 1.2, 0.06), '#ffffff', x, 1.9, 2.82);
+    add(house, new THREE.BoxGeometry(1.2, 1.0, 0.08), '#bde0fe', x, 1.9, 2.84);
+  });
+  const buntCols = ['#f6b93b', '#74c0fc', '#69db7c', '#b197fc', '#ff8787'];
+  for (let i = 0; i < 12; i++) {
+    const x = -3.3 + i * 0.6, sag = Math.sin(i / 11 * Math.PI) * 0.35;
+    const flag = add(house, new THREE.ConeGeometry(0.18, 0.38, 3), buntCols[i % 5], x, 3.0 - sag, 2.95, { flat: true });
+    flag.rotation.x = Math.PI;
+  }
+  const balloons = [[-4.4, -10.3, '#ff6b9a'], [4.4, -10.3, '#74c0fc'], [5.0, -11.2, '#ffd43b']].map(([x, z, c], i) => {
+    const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g);
+    add(g, new THREE.CylinderGeometry(0.01, 0.01, 2.8, 4), '#8a5a6b', 0, 1.4, 0, { cast: false });
+    const b = add(g, new THREE.SphereGeometry(0.45, 16, 12), c, 0, 3.2 + i * 0.3, 0);
+    b.scale.y = 1.2;
+    return g;
+  });
+
+  // trees
+  const trees = [[100, 350], [900, 430], [250, 600], [720, 700], [110, 820], [890, 850], [370, 1060], [560, 1360], [60, 1150], [940, 1180]]
+    .map(([x, y]) => P(x, y));
+  trees.forEach((t, i) => {
+    add(scene, new THREE.CylinderGeometry(0.15, 0.22, 1.1, 6), '#8d5b3e', t.x, 0.55, t.z, { flat: true });
+    add(scene, new THREE.IcosahedronGeometry(0.95, 0), '#4f9d5b', t.x, 1.8, t.z, { flat: true });
+    add(scene, new THREE.IcosahedronGeometry(0.6, 0), '#62b56e', t.x + 0.3, 2.4, t.z - 0.2, { flat: true }).rotation.y = i;
+  });
+
+  // flowers and grass tufts
   let seed = 7;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const decor = Array.from({ length: 140 }, () => ({
-    x: rnd() * WW, y: rnd() * WH, k: Math.floor(rnd() * 4)
-  })).filter(d => Math.hypot(d.x - pond.x, d.y - pond.y) > pond.r + 10 &&
-    !(d.x > house.x - 10 && d.x < house.x + house.w + 10 && d.y < house.y + house.h + 10));
+  const free = (x, z) => Math.hypot(x - pond.x, z - pond.z) > pond.r + 0.5 &&
+    !(x > -4.4 && x < 4.4 && z < -9.4) && !(Math.abs(x) < 1.4 && z > -10 && z < 0.2);
+  function scatter(geo, colors, count, y) {
+    const im = new THREE.InstancedMesh(geo, lam('#ffffff'), count);
+    const d = new THREE.Object3D(), col = new THREE.Color();
+    for (let i = 0; i < count;) {
+      const x = rnd() * 24 - 12, z = rnd() * 34 - 17;
+      if (!free(x, z)) continue;
+      d.position.set(x, y, z); d.rotation.y = rnd() * PI2; d.updateMatrix();
+      im.setMatrixAt(i, d.matrix); im.setColorAt(i, col.set(colors[i % colors.length])); i++;
+    }
+    scene.add(im);
+  }
+  scatter(new THREE.SphereGeometry(0.08, 6, 4), ['#ffffff', '#ffd6e5', '#ffe066'], 160, 0.08);
+  scatter(new THREE.ConeGeometry(0.06, 0.32, 3), ['#6fb46d', '#7cc27a'], 240, 0.16);
+
+  // cat
+  const catPos = P(730, 370);
+  const cat = new THREE.Group(); cat.position.set(catPos.x, 0, catPos.z); scene.add(cat);
+  const catBody = add(cat, new THREE.SphereGeometry(0.33, 12, 10), '#f4a259', 0, 0.32, 0); catBody.scale.set(1, 0.85, 1.35);
+  add(cat, new THREE.SphereGeometry(0.26, 12, 10), '#f4a259', 0, 0.68, 0.36);
+  [-0.13, 0.13].forEach(x => {
+    add(cat, new THREE.ConeGeometry(0.09, 0.2, 4), '#e8893e', x, 0.92, 0.34, { flat: true });
+    add(cat, new THREE.SphereGeometry(0.035, 6, 6), '#2b2b2b', x * 0.75, 0.72, 0.59, { cast: false });
+  });
+  add(cat, new THREE.SphereGeometry(0.03, 6, 6), '#ff8fab', 0, 0.66, 0.62, { cast: false });
+  const catTail = add(cat, new THREE.CylinderGeometry(0.04, 0.06, 0.55, 6), '#e8893e', 0, 0.55, -0.45);
+  catTail.rotation.x = -0.6;
+  const catBubble = emojiSprite('🐟', 0.75, true); catBubble.position.set(0.3, 1.55, 0); cat.add(catBubble);
+  const catHeart = emojiSprite('❤️', 0.5); catHeart.position.set(0, 1.4, 0); cat.add(catHeart);
+
+  // cake on a table
+  const cakePos = P(300, 770);
+  const cake = new THREE.Group(); cake.position.set(cakePos.x, 0, cakePos.z); scene.add(cake);
+  add(cake, new THREE.CylinderGeometry(0.9, 0.9, 0.1, 24), '#c08552', 0, 0.8, 0);
+  add(cake, new THREE.CylinderGeometry(0.1, 0.14, 0.8, 8), '#a06a3d', 0, 0.4, 0);
+  add(cake, new THREE.CylinderGeometry(0.55, 0.55, 0.4, 24), '#fff0f5', 0, 1.05, 0);
+  add(cake, new THREE.CylinderGeometry(0.38, 0.38, 0.32, 24), '#ff8fb1', 0, 1.41, 0);
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * PI2;
+    add(cake, new THREE.SphereGeometry(0.05, 6, 6), '#e03131', Math.cos(a) * 0.48, 1.27, Math.sin(a) * 0.48, { cast: false });
+  }
+  const cakeFlames = [];
+  [[0, 0.18], [-0.16, -0.1], [0.16, -0.1]].forEach(([x, z]) => {
+    add(cake, new THREE.CylinderGeometry(0.035, 0.035, 0.26, 8), '#ffd6e5', x, 1.7, z);
+    const f = add(cake, new THREE.ConeGeometry(0.05, 0.13, 8), null, x, 1.9, z, { cast: false, mat: new THREE.MeshBasicMaterial({ color: '#ffb703' }) });
+    cakeFlames.push(f);
+  });
+  const cakeLight = new THREE.PointLight('#ffb35c', 0, 6); cakeLight.position.set(0, 2.1, 0); cake.add(cakeLight);
+
+  // gift
+  const giftPos = P(500, 380);
+  const gift = new THREE.Group(); gift.position.set(giftPos.x, 0, giftPos.z); scene.add(gift);
+  add(gift, new THREE.BoxGeometry(0.9, 0.7, 0.9), '#d6336c', 0, 0.35, 0);
+  add(gift, new THREE.BoxGeometry(0.92, 0.71, 0.18), '#f6b93b', 0, 0.35, 0);
+  add(gift, new THREE.BoxGeometry(0.18, 0.71, 0.92), '#f6b93b', 0, 0.35, 0);
+  const lid = new THREE.Group(); lid.position.y = 0.7; gift.add(lid);
+  add(lid, new THREE.BoxGeometry(1.0, 0.18, 1.0), '#d6336c', 0, 0.09, 0);
+  add(lid, new THREE.BoxGeometry(1.02, 0.19, 0.18), '#f6b93b', 0, 0.09, 0);
+  add(lid, new THREE.BoxGeometry(0.18, 0.19, 1.02), '#f6b93b', 0, 0.09, 0);
+  [-0.6, 0.6].forEach(r => { const bow = add(lid, new THREE.TorusGeometry(0.14, 0.05, 8, 16), '#f6b93b', r * 0.25, 0.3, 0); bow.rotation.y = r; });
+  const giftLock = emojiSprite('🔒', 0.45); giftLock.position.set(0, 1.35, 0); gift.add(giftLock);
+  const giftLight = new THREE.PointLight('#ff6b9a', 0, 5); giftLight.position.set(0, 1.4, 0); gift.add(giftLight);
+
+  // collectibles
+  function makeRose() {
+    const g = new THREE.Group();
+    add(g, new THREE.CylinderGeometry(0.025, 0.025, 0.5, 6), '#2f9e44', 0, 0.25, 0);
+    add(g, new THREE.SphereGeometry(0.07, 6, 4), '#2f9e44', 0.08, 0.22, 0).scale.set(1.4, 0.4, 0.8);
+    add(g, new THREE.SphereGeometry(0.14, 10, 8), '#e03131', 0, 0.58, 0);
+    add(g, new THREE.ConeGeometry(0.16, 0.14, 8), '#c92a2a', 0, 0.48, 0).rotation.x = Math.PI;
+    g.scale.setScalar(1.5);
+    return g;
+  }
+  function makeCandle() {
+    const g = new THREE.Group();
+    add(g, new THREE.CylinderGeometry(0.07, 0.07, 0.45, 10), '#ffd6e5', 0, 0.23, 0);
+    add(g, new THREE.CylinderGeometry(0.072, 0.072, 0.06, 10), '#d6336c', 0, 0.3, 0);
+    add(g, new THREE.ConeGeometry(0.06, 0.15, 8), null, 0, 0.53, 0, { cast: false, mat: new THREE.MeshBasicMaterial({ color: '#ffb703' }) });
+    g.scale.setScalar(1.5);
+    return g;
+  }
+  function makeFish() {
+    const g = new THREE.Group();
+    add(g, new THREE.SphereGeometry(0.2, 12, 8), '#ff922b', 0, 0, 0).scale.set(1.6, 1, 0.6);
+    const tail = add(g, new THREE.ConeGeometry(0.15, 0.24, 4), '#f76707', -0.38, 0, 0, { flat: true });
+    tail.rotation.z = Math.PI / 2;
+    add(g, new THREE.SphereGeometry(0.035, 6, 6), '#222', 0.2, 0.06, 0.1, { cast: false });
+    return g;
+  }
+  const roses = [[150, 480], [870, 600], [200, 1000], [430, 1250], [880, 1320]].map(([x, y]) => ({ ...P(x, y), obj: makeRose(), my: 1.7 }));
+  const candles = [[120, 180], [900, 150], [150, 1330]].map(([x, y]) => ({ ...P(x, y), obj: makeCandle(), my: 1.7 }));
+  const fish = { ...P(640, 990), obj: makeFish(), my: 1.4, base: 0.45 };
+  [...roses, ...candles, fish].forEach(it => { it.obj.position.set(it.x, it.base || 0.15, it.z); scene.add(it.obj); });
+
+  // ---------- her ----------
+  const her = new THREE.Group(); scene.add(her);
+  const body = new THREE.Group(); her.add(body);
+  add(body, new THREE.CylinderGeometry(0.24, 0.42, 1.0, 18), '#fbf8f4', 0, 0.5, 0);
+  add(body, new THREE.CylinderGeometry(0.27, 0.38, 0.78, 18, 1, true, 0.55, PI2 - 1.1), null, 0, 0.72, 0,
+    { mat: lam('#1f1a24', { side: THREE.DoubleSide }) });
+  add(body, new THREE.CylinderGeometry(0.13, 0.37, 0.36, 18), '#d8cfc4', 0, 1.17, 0);
+  const arms = [-1, 1].map(s => {
+    const pivot = new THREE.Group(); pivot.position.set(0.34 * s, 1.1, 0); body.add(pivot);
+    add(pivot, new THREE.CylinderGeometry(0.065, 0.06, 0.55, 8), '#1f1a24', 0, -0.27, 0);
+    add(pivot, new THREE.SphereGeometry(0.06, 8, 6), '#f2cdb4', 0, -0.57, 0);
+    return pivot;
+  });
+  const carried = makeFish(); carried.scale.setScalar(0.8); carried.position.set(0.15, -0.6, 0.12); carried.rotation.y = Math.PI / 2;
+  arms[1].add(carried);
+
+  const headMat = new THREE.SpriteMaterial({ transparent: true, fog: false });
+  const head = new THREE.Sprite(headMat); head.scale.set(0.64, 0.92, 1); head.position.y = 1.62; her.add(head);
+  function fallbackFace() {
+    const c = document.createElement('canvas'); c.width = 180; c.height = 260;
+    const g = c.getContext('2d');
+    g.fillStyle = '#d8cfc4'; g.beginPath(); g.ellipse(90, 130, 88, 128, 0, 0, PI2); g.fill();
+    g.fillStyle = '#f2cdb4'; g.beginPath(); g.ellipse(90, 145, 60, 80, 0, 0, PI2); g.fill();
+    g.fillStyle = '#3b1f2b'; g.beginPath(); g.arc(68, 135, 7, 0, PI2); g.arc(112, 135, 7, 0, PI2); g.fill();
+    g.strokeStyle = '#a61e4d'; g.lineWidth = 5; g.beginPath(); g.arc(90, 170, 20, .2, Math.PI - .2); g.stroke();
+    return new THREE.CanvasTexture(c);
+  }
+  new THREE.TextureLoader().load('face.png',
+    t => { headMat.map = t; headMat.needsUpdate = true; },
+    undefined,
+    () => { headMat.map = fallbackFace(); headMat.needsUpdate = true; });
+
+  // guidance: pink cone above the target, arrow on the ground by her feet
+  const marker = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.45, 4), new THREE.MeshBasicMaterial({ color: '#d6336c' }));
+  marker.rotation.x = Math.PI; scene.add(marker);
+  const arrowPivot = new THREE.Group(); scene.add(arrowPivot);
+  const tri = new THREE.Shape(); tri.moveTo(0, -0.38); tri.lineTo(-0.26, 0.2); tri.lineTo(0, 0.08); tri.lineTo(0.26, 0.2); tri.closePath();
+  const arrow = new THREE.Mesh(new THREE.ShapeGeometry(tri), new THREE.MeshBasicMaterial({ color: '#d6336c', transparent: true, opacity: 0.9 }));
+  arrow.rotation.x = -Math.PI / 2; arrow.position.set(0, 0.04, 1.2); arrowPivot.add(arrow);
 
   // ---------- state ----------
-  let state, stage, player, roses, candles, hasFish, catFed, cakeLit, time, nearGift;
+  let state, stage, player, hasFish, catFed, cakeLit, nearGift, time = 0, openT = 0;
+  let yaw = 0;
   const confetti = [];
+  const catTarget = { x: catPos.x, z: catPos.z, my: 1.9 };
+  const cakeTarget = { x: cakePos.x, z: cakePos.z, my: 2.6 };
+  const giftTarget = { x: giftPos.x, z: giftPos.z, my: 2.0 };
 
   function reset() {
-    state = 'start'; stage = 0; time = 0;
-    player = { x: 500, y: 700, r: 14, face: 1, walk: 0, moving: false };
-    roses = rosePos.map(([x, y]) => ({ x, y, taken: false }));
-    candles = candlePos.map(([x, y]) => ({ x, y, taken: false }));
-    fish.taken = false; hasFish = false; catFed = false; cakeLit = false; nearGift = false;
+    state = 'start'; stage = 0; openT = 0; yaw = 0;
+    player = { x: 0, z: 0, r: 0.35, angle: Math.PI, walk: 0, moving: false };
+    [...roses, ...candles, fish].forEach(it => { it.taken = false; it.obj.visible = false; });
+    hasFish = false; catFed = false; cakeLit = false; nearGift = false;
+    lid.position.set(0, 0.7, 0); lid.rotation.set(0, 0, 0);
     confetti.length = 0;
+    camera.position.set(0, 4, 6.5);
   }
   reset();
 
@@ -210,7 +432,7 @@ const CONFIG = {
   let queue = [], onDone = null;
   function say(lines, done) {
     queue = [...lines]; onDone = done || null;
-    joy.active = false;
+    joy.id = null;
     nextLine();
   }
   function nextLine() {
@@ -236,12 +458,13 @@ const CONFIG = {
   }
   function targets() {
     if (stage === 1) return roses.filter(r => !r.taken);
-    if (stage === 2) return hasFish ? [cat] : [fish];
-    if (stage === 3) return countTaken(candles) < 3 ? candles.filter(c => !c.taken) : [cake];
-    if (stage === 4) return [gift];
+    if (stage === 2) return hasFish ? [catTarget] : [fish];
+    if (stage === 3) return countTaken(candles) < 3 ? candles.filter(c => !c.taken) : [cakeTarget];
+    if (stage === 4) return [giftTarget];
     return [];
   }
   const updateTask = () => { $('task').textContent = taskText(); };
+  const show = (arr, v) => arr.forEach(i => { if (!i.taken) i.obj.visible = v; });
 
   function start() {
     if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} }
@@ -251,15 +474,14 @@ const CONFIG = {
     say([
       `كل عام وإنتِ بخير يا ${CONFIG.name}! 🎉`,
       'في هدية مخبّاية إلك... بس لازم تخلّصي كم مهمة أول 😉',
-      'حطي إصبعك على الشاشة واسحبي لتمشي، والسهم الوردي بيدلّك وين تروحي.',
-    ], () => { stage = 1; $('task').hidden = false; updateTask(); });
+      'حطي إصبع على يسار الشاشة واسحبي لتمشي، وإصبع على اليمين لتلفّي الكاميرا. السهم الوردي بيدلّك وين تروحي.',
+    ], () => { stage = 1; show(roses, true); $('task').hidden = false; updateTask(); });
   }
   $('startBtn').onclick = start;
   $('againBtn').onclick = start;
 
   function finish() {
     state = 'final';
-    $('task').hidden = true;
     $('finalTitle').textContent = 'كل عام وإنتِ بخير يا ' + CONFIG.name;
     $('finalMsg').textContent = CONFIG.message;
     $('finalFrom').textContent = CONFIG.from;
@@ -267,334 +489,223 @@ const CONFIG = {
     happyBirthday();
   }
 
+  // ---------- 3D sparkles ----------
+  const sparks = [];
+  const sparkGeo = new THREE.SphereGeometry(0.06, 6, 4);
+  function burst(x, y, z, color) {
+    for (let i = 0; i < 18; i++) {
+      const m = new THREE.Mesh(sparkGeo, new THREE.MeshBasicMaterial({ color, transparent: true }));
+      m.position.set(x, y, z); scene.add(m);
+      const a = Math.random() * PI2, s = 1 + Math.random() * 2.5;
+      sparks.push({ m, vx: Math.cos(a) * s, vy: 2 + Math.random() * 3, vz: Math.sin(a) * s, life: 0.8 });
+    }
+  }
+
   function checkInteractions() {
-    const near = (o, d = 34) => Math.hypot(o.x - player.x, o.y - player.y) < d;
+    const near = (o, d = 0.9) => Math.hypot(o.x - player.x, o.z - player.z) < d;
 
     if (stage === 1) {
       for (const r of roses) if (!r.taken && near(r)) {
-        r.taken = true; ding(); burst(r.x, r.y - 20, '#ff6b9a');
-        updateTask();
+        r.taken = true; r.obj.visible = false; ding(); burst(r.x, 1, r.z, '#ff6b9a'); updateTask();
         if (countTaken(roses) === 5) {
           success();
           say(['واو! باقة ورد حلوة متلك 💐', 'بس اسمعي... في قطة جنب البيت شكلها زعلانة. روحي شوفي شو بدها.'],
-            () => { stage = 2; updateTask(); });
+            () => { stage = 2; fish.obj.visible = true; updateTask(); });
         }
       }
     } else if (stage === 2) {
-      if (!hasFish && near(fish)) { hasFish = true; fish.taken = true; ding(); burst(fish.x, fish.y - 20, '#74c0fc'); updateTask(); }
-      if (hasFish && near(cat, 48)) {
-        catFed = true; success(); burst(cat.x, cat.y - 30, '#ffd43b');
+      if (!hasFish && near(fish)) { hasFish = true; fish.taken = true; fish.obj.visible = false; ding(); burst(fish.x, 0.8, fish.z, '#74c0fc'); updateTask(); }
+      if (hasFish && !catFed && near(catTarget, 1.4)) {
+        catFed = true; success(); burst(catPos.x, 1.2, catPos.z, '#ffd43b');
         say(['مياو! 😻 شكراً عالسمكة!', 'خدي هالمفتاح 🔑 رح تحتاجيه لتفتحي الهدية.', 'بس قبل... الكيكة ناقصها شموع! دوّري على 3 شموع بالجنينة.'],
-          () => { stage = 3; updateTask(); });
+          () => { stage = 3; show(candles, true); updateTask(); });
       }
     } else if (stage === 3) {
       for (const c of candles) if (!c.taken && near(c)) {
-        c.taken = true; ding(); burst(c.x, c.y - 20, '#ffd43b'); updateTask();
+        c.taken = true; c.obj.visible = false; ding(); burst(c.x, 1, c.z, '#ffd43b'); updateTask();
       }
-      if (countTaken(candles) === 3 && near(cake, 50)) {
-        cakeLit = true; success(); burst(cake.x, cake.y - 40, '#ffa94d');
+      if (countTaken(candles) === 3 && !cakeLit && near(cakeTarget, 1.6)) {
+        cakeLit = true; success(); burst(cakePos.x, 2, cakePos.z, '#ffa94d');
         say(['🎂 ولّعنا الشموع!', 'غمّضي عيونك وتمنّي أمنية... ✨', 'هلأ الهدية صارت جاهزة قدّام البيت 🎁'],
           () => { stage = 4; updateTask(); });
       }
     } else if (stage === 4) {
-      if (near(gift, 44)) { success(); burst(gift.x, gift.y - 30, '#d6336c'); finish(); }
+      if (near(giftTarget, 1.4)) {
+        state = 'opening'; openT = 0; $('task').hidden = true;
+        success(); burst(giftPos.x, 1.2, giftPos.z, '#d6336c'); burst(giftPos.x, 1.2, giftPos.z, '#f6b93b');
+      }
     }
 
-    const nowNearGift = near(gift, 44);
+    const nowNearGift = near(giftTarget, 1.4);
     if (stage > 0 && stage < 4 && nowNearGift && !nearGift) say(['الهدية مقفولة 🔒 خلّصي المهام أول!']);
     nearGift = nowNearGift;
   }
 
-  // ---------- input: floating joystick + arrow keys ----------
-  const joy = { active: false, id: null, bx: 0, by: 0, dx: 0, dy: 0 };
-  const JR = 50;
-  canvas.addEventListener('pointerdown', e => {
+  // ---------- input: left half walks, right half turns the camera ----------
+  const joy = { id: null, bx: 0, by: 0, dx: 0, dy: 0 };
+  const look = { id: null, lx: 0 };
+  const JR = 55;
+  glc.addEventListener('pointerdown', e => {
     if (state !== 'play' || talking()) return;
-    Object.assign(joy, { active: true, id: e.pointerId, bx: e.clientX, by: e.clientY, dx: 0, dy: 0 });
+    const p = toLocal(e);
+    if (p.x < LW / 2 && joy.id === null) Object.assign(joy, { id: e.pointerId, bx: p.x, by: p.y, dx: 0, dy: 0 });
+    else if (look.id === null) Object.assign(look, { id: e.pointerId, lx: p.x });
   });
   window.addEventListener('pointermove', e => {
-    if (!joy.active || e.pointerId !== joy.id) return;
-    let dx = e.clientX - joy.bx, dy = e.clientY - joy.by;
-    const d = Math.hypot(dx, dy);
-    if (d > JR) { dx *= JR / d; dy *= JR / d; }
-    joy.dx = dx; joy.dy = dy;
+    const p = toLocal(e);
+    if (e.pointerId === joy.id) {
+      let dx = p.x - joy.bx, dy = p.y - joy.by;
+      const d = Math.hypot(dx, dy);
+      if (d > JR) { dx *= JR / d; dy *= JR / d; }
+      joy.dx = dx; joy.dy = dy;
+    } else if (e.pointerId === look.id) {
+      yaw -= (p.x - look.lx) * 0.008; look.lx = p.x;
+    }
   });
-  const endJoy = e => { if (e.pointerId === joy.id) joy.active = false; };
-  window.addEventListener('pointerup', endJoy);
-  window.addEventListener('pointercancel', endJoy);
+  const release = e => { if (e.pointerId === joy.id) joy.id = null; if (e.pointerId === look.id) look.id = null; };
+  window.addEventListener('pointerup', release);
+  window.addEventListener('pointercancel', release);
   const keys = {};
   window.addEventListener('keydown', e => keys[e.key] = true);
   window.addEventListener('keyup', e => keys[e.key] = false);
 
   // ---------- physics ----------
+  function pushOut(p, x, z, min) {
+    const dx = p.x - x, dz = p.z - z, d = Math.hypot(dx, dz);
+    if (d < min && d > 0) { p.x = x + dx / d * min; p.z = z + dz / d * min; }
+  }
   function collide(p) {
-    for (const t of trees) pushOut(p, t.x, t.y, 14 + p.r);
-    pushOut(p, pond.x, pond.y, pond.r + p.r);
-    const cx = Math.max(house.x, Math.min(p.x, house.x + house.w));
-    const cy = Math.max(house.y, Math.min(p.y, house.y + house.h));
-    const d = Math.hypot(p.x - cx, p.y - cy);
+    for (const t of trees) pushOut(p, t.x, t.z, 0.3 + p.r);
+    pushOut(p, pond.x, pond.z, pond.r + p.r);
+    pushOut(p, cakePos.x, cakePos.z, 0.9 + p.r);
+    pushOut(p, catPos.x, catPos.z, 0.45 + p.r);
+    pushOut(p, giftPos.x, giftPos.z, 0.6 + p.r);
+    const cx = Math.max(houseRect.x0, Math.min(p.x, houseRect.x1));
+    const cz = Math.max(houseRect.z0, Math.min(p.z, houseRect.z1));
+    const d = Math.hypot(p.x - cx, p.z - cz);
     if (d < p.r) {
-      if (d === 0) p.y = house.y + house.h + p.r;
-      else { p.x = cx + (p.x - cx) / d * p.r; p.y = cy + (p.y - cy) / d * p.r; }
+      if (d === 0) p.z = houseRect.z1 + p.r;
+      else { p.x = cx + (p.x - cx) / d * p.r; p.z = cz + (p.z - cz) / d * p.r; }
     }
-    p.x = Math.max(p.r, Math.min(WW - p.r, p.x));
-    p.y = Math.max(p.r + 20, Math.min(WH - p.r, p.y));
-  }
-  function pushOut(p, x, y, min) {
-    const dx = p.x - x, dy = p.y - y, d = Math.hypot(dx, dy);
-    if (d < min && d > 0) { p.x = x + dx / d * min; p.y = y + dy / d * min; }
+    p.x = Math.max(-12.1, Math.min(12.1, p.x));
+    p.z = Math.max(-17.1, Math.min(17.1, p.z));
   }
 
-  // ---------- particles ----------
-  const sparks = [];
-  function burst(x, y, color) {
-    for (let i = 0; i < 16; i++) {
-      const a = Math.random() * Math.PI * 2, s = 40 + Math.random() * 120;
-      sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 40, life: .7, color });
-    }
-  }
-
+  // ---------- update ----------
   function update(dt) {
     time += dt;
-    for (const s of sparks) { s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 200 * dt; s.life -= dt; }
-    for (let i = sparks.length - 1; i >= 0; i--) if (sparks[i].life <= 0) sparks.splice(i, 1);
 
-    if (state === 'final') {
-      if (confetti.length < 160) confetti.push({
-        x: Math.random() * W, y: -10, vy: 60 + Math.random() * 80, vx: (Math.random() - .5) * 40,
-        r: Math.random() * 6, s: 4 + Math.random() * 5,
-        c: ['#d6336c', '#f6b93b', '#74c0fc', '#69db7c', '#b197fc'][Math.floor(Math.random() * 5)]
-      });
-      for (const c of confetti) { c.y += c.vy * dt; c.x += c.vx * dt; c.r += dt * 4; if (c.y > H + 10) { c.y = -10; c.x = Math.random() * W; } }
-    }
-
-    if (state !== 'play' || talking()) { player.moving = false; return; }
-    let mx = joy.active ? joy.dx / JR : 0, my = joy.active ? joy.dy / JR : 0;
-    if (keys.ArrowLeft) mx = -1; if (keys.ArrowRight) mx = 1;
-    if (keys.ArrowUp) my = -1; if (keys.ArrowDown) my = 1;
-    const m = Math.hypot(mx, my);
-    player.moving = m > 0.15;
+    // walking
+    let jx = joy.id !== null ? joy.dx / JR : 0, jy = joy.id !== null ? joy.dy / JR : 0;
+    if (keys.ArrowLeft || keys.a) jx = -1; if (keys.ArrowRight || keys.d) jx = 1;
+    if (keys.ArrowUp || keys.w) jy = -1; if (keys.ArrowDown || keys.s) jy = 1;
+    const m = Math.hypot(jx, jy);
+    player.moving = state === 'play' && !talking() && m > 0.15;
     if (player.moving) {
-      const sp = 190 * Math.min(1, m);
-      player.x += mx / Math.max(1, m) * sp * dt;
-      player.y += my / Math.max(1, m) * sp * dt;
-      if (Math.abs(mx) > 0.1) player.face = mx > 0 ? 1 : -1;
-      player.walk += dt * 10;
+      const k = Math.min(1, m) / m, sp = 4;
+      const mx = (jx * Math.cos(yaw) + jy * Math.sin(yaw)) * k;
+      const mz = (-jx * Math.sin(yaw) + jy * Math.cos(yaw)) * k;
+      player.x += mx * sp * dt; player.z += mz * sp * dt;
       collide(player);
+      player.angle = Math.atan2(mx, mz);
+      player.walk += dt * 11;
     }
-    checkInteractions();
-  }
+    if (state === 'play' && !talking()) checkInteractions();
 
-  // ---------- drawing ----------
-  function emoji(ch, x, y, size) {
-    ctx.font = `${size}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-    ctx.fillText(ch, x, y);
-  }
-  function shadow(x, y, w) {
-    ctx.fillStyle = 'rgba(40,70,40,.22)';
-    ctx.beginPath(); ctx.ellipse(x, y, w, w * .35, 0, 0, Math.PI * 2); ctx.fill();
-  }
+    // her pose
+    let da = player.angle - body.rotation.y;
+    da = Math.atan2(Math.sin(da), Math.cos(da));
+    body.rotation.y += da * Math.min(1, dt * 12);
+    const swing = player.moving ? Math.sin(player.walk) : 0;
+    const bob = player.moving ? Math.abs(Math.sin(player.walk)) * 0.07 : Math.sin(time * 2) * 0.015;
+    her.position.set(player.x, bob, player.z);
+    arms[0].rotation.x = swing * 0.6; arms[1].rotation.x = -swing * 0.6;
+    carried.visible = hasFish && !catFed;
 
-  function drawGround() {
-    ctx.fillStyle = '#9fd4a0'; ctx.fillRect(0, 0, WW, WH);
-    // path from the door
-    ctx.fillStyle = '#f3dfc1';
-    ctx.beginPath();
-    ctx.moveTo(470, house.y + house.h); ctx.lineTo(530, house.y + house.h);
-    ctx.quadraticCurveTo(560, 600, 520, 900); ctx.lineTo(460, 900);
-    ctx.quadraticCurveTo(500, 600, 470, house.y + house.h);
-    ctx.fill();
-    for (const d of decor) {
-      if (d.k === 0) { ctx.fillStyle = '#8cc58d'; ctx.fillRect(d.x, d.y, 3, 8); ctx.fillRect(d.x + 4, d.y + 2, 3, 6); }
-      else { ctx.fillStyle = ['', '#fff', '#ffd6e5', '#ffe066'][d.k]; ctx.beginPath(); ctx.arc(d.x, d.y, 3, 0, Math.PI * 2); ctx.fill(); }
-    }
-    // pond
-    ctx.fillStyle = '#7ec4e8';
-    ctx.beginPath(); ctx.arc(pond.x, pond.y, pond.r, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#5fa8d3'; ctx.lineWidth = 6; ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 3;
-    for (let i = 0; i < 3; i++) {
-      const r = 20 + ((time * 15 + i * 30) % 90);
-      ctx.globalAlpha = 1 - r / 110;
-      ctx.beginPath(); ctx.arc(pond.x - 20, pond.y + 10, r, 0, Math.PI * 2); ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  function drawHouse() {
-    const { x, y, w, h } = house;
-    ctx.fillStyle = '#ffe3ea'; ctx.fillRect(x + 20, y + 80, w - 40, h - 80);
-    ctx.fillStyle = '#d6336c';
-    ctx.beginPath(); ctx.moveTo(x, y + 90); ctx.lineTo(x + w / 2, y); ctx.lineTo(x + w, y + 90); ctx.fill();
-    ctx.fillStyle = '#a61e4d'; ctx.fillRect(x + w / 2 - 28, y + h - 70, 56, 70);
-    ctx.fillStyle = '#f6b93b'; ctx.beginPath(); ctx.arc(x + w / 2 + 16, y + h - 35, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#bde0fe';
-    ctx.fillRect(x + 50, y + 120, 50, 44); ctx.fillRect(x + w - 100, y + 120, 50, 44);
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
-    ctx.strokeRect(x + 50, y + 120, 50, 44); ctx.strokeRect(x + w - 100, y + 120, 50, 44);
-    // bunting
-    const cols = ['#f6b93b', '#74c0fc', '#69db7c', '#b197fc', '#ff8787'];
-    for (let i = 0; i < 9; i++) {
-      const bx = x + 30 + i * 30, by = y + 96 + Math.sin(i / 8 * Math.PI) * 10;
-      ctx.fillStyle = cols[i % 5];
-      ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + 24, by); ctx.lineTo(bx + 12, by + 18); ctx.fill();
-    }
-    // balloons
-    [[x - 10, '#ff6b9a'], [x + w + 10, '#74c0fc'], [x + w + 30, '#ffd43b']].forEach(([bx, c], i) => {
-      const sway = Math.sin(time * 1.5 + i) * 6, top = y + 40 + i * 12;
-      ctx.strokeStyle = '#8a5a6b'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(bx, y + h); ctx.quadraticCurveTo(bx + sway, top + 80, bx + sway, top + 28); ctx.stroke();
-      ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(bx + sway, top, 20, 26, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.ellipse(bx + sway - 7, top - 9, 5, 8, -.4, 0, Math.PI * 2); ctx.fill();
+    // world animation
+    balloons.forEach((b, i) => { b.rotation.z = Math.sin(time * 1.3 + i) * 0.06; b.rotation.x = Math.cos(time + i) * 0.04; });
+    [...roses, ...candles, fish].forEach((it, i) => {
+      if (!it.obj.visible) return;
+      it.obj.position.y = (it.base || 0.15) + Math.sin(time * 3 + i) * 0.08;
+      it.obj.rotation.y += dt * 1.2;
     });
-  }
+    catBubble.visible = stage === 2 && !catFed;
+    catBubble.position.y = 1.55 + Math.sin(time * 2) * 0.05;
+    catHeart.visible = catFed;
+    catHeart.position.y = 1.4 + Math.sin(time * 3) * 0.08;
+    const toHer = Math.atan2(player.x - cat.position.x, player.z - cat.position.z);
+    let ca = toHer - cat.rotation.y; ca = Math.atan2(Math.sin(ca), Math.cos(ca));
+    cat.rotation.y += ca * Math.min(1, dt * 3);
+    catTail.rotation.z = Math.sin(time * 4) * 0.4;
+    cakeFlames.forEach((f, i) => { f.visible = cakeLit; f.scale.y = 1 + Math.sin(time * 18 + i) * 0.15; });
+    cakeLight.intensity = cakeLit ? 1.1 + Math.sin(time * 15) * 0.15 : 0;
+    giftLock.visible = stage < 4;
+    const pulse = stage === 4 && state === 'play' ? 1 + Math.sin(time * 5) * 0.05 : 1;
+    gift.scale.setScalar(pulse);
+    giftLight.intensity = stage >= 4 ? 1.2 : 0;
 
-  function drawTree(t) {
-    shadow(t.x, t.y, 30);
-    ctx.fillStyle = '#8d5b3e'; ctx.fillRect(t.x - 7, t.y - 30, 14, 32);
-    ctx.fillStyle = '#4f9d5b';
-    ctx.beginPath(); ctx.arc(t.x, t.y - 58, 36, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#62b56e';
-    ctx.beginPath(); ctx.arc(t.x - 12, t.y - 68, 20, 0, Math.PI * 2); ctx.fill();
-  }
-
-  function drawGirl() {
-    const { x, y, face, walk, moving } = player;
-    const step = moving ? Math.sin(walk) : 0;
-    const bob = moving ? Math.abs(Math.sin(walk)) * 2 : Math.sin(time * 2) * .8;
-    shadow(x, y, 16);
-    ctx.save(); ctx.translate(x, y - bob); ctx.scale(face, 1);
-    // shoes peeking under the long dress
-    ctx.fillStyle = '#3b1f2b';
-    ctx.fillRect(-8 + step * 3, -4, 7, 4); ctx.fillRect(1 - step * 3, -4, 7, 4);
-    // hijab drape over the shoulders
-    ctx.fillStyle = '#d8cfc4';
-    ctx.beginPath(); ctx.moveTo(-12, -48); ctx.lineTo(12, -48); ctx.lineTo(15, -30); ctx.lineTo(-15, -30); ctx.closePath(); ctx.fill();
-    // white dress
-    ctx.fillStyle = '#fbf8f4';
-    ctx.beginPath(); ctx.moveTo(-10, -36); ctx.lineTo(10, -36); ctx.lineTo(15 + step * 1.5, -3); ctx.lineTo(-15 + step * 1.5, -3); ctx.closePath(); ctx.fill();
-    // black open jacket
-    ctx.fillStyle = '#1f1a24';
-    ctx.beginPath(); ctx.moveTo(-13, -38); ctx.lineTo(-4, -38); ctx.lineTo(-6, -10); ctx.lineTo(-15, -10); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(13, -38); ctx.lineTo(4, -38); ctx.lineTo(6, -10); ctx.lineTo(15, -10); ctx.closePath(); ctx.fill();
-    // arms
-    ctx.strokeStyle = '#1f1a24'; ctx.lineWidth = 5; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(-12, -35); ctx.lineTo(-15 - step * 2, -20); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(12, -35); ctx.lineTo(15 + step * 2, -20); ctx.stroke();
-    ctx.fillStyle = '#f2cdb4';
-    ctx.beginPath(); ctx.arc(-15 - step * 2, -17, 2.8, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(15 + step * 2, -17, 2.8, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-    // head: her photo, never mirrored
-    if (faceImg.complete && faceImg.naturalWidth) {
-      ctx.drawImage(faceImg, x - 19, y - bob - 84, 38, 55);
-    } else {
-      ctx.fillStyle = '#d8cfc4';
-      ctx.beginPath(); ctx.ellipse(x, y - bob - 57, 18, 26, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#f2cdb4';
-      ctx.beginPath(); ctx.ellipse(x, y - bob - 54, 12, 16, 0, 0, Math.PI * 2); ctx.fill();
+    // gift opening
+    if (state === 'opening' || state === 'final') {
+      openT += dt;
+      lid.position.y = 0.7 + Math.min(openT, 1) * 1.6;
+      lid.position.x = Math.min(openT, 1) * 0.8;
+      lid.rotation.z = -Math.min(openT, 1) * 1.2;
+      if (state === 'opening' && openT > 1.3) finish();
+      yaw += dt * 0.25;
     }
-    // carried items
-    if (hasFish && !catFed) emoji('🐟', x + 16 * face, y - 20 - bob, 18);
-  }
 
-  function drawItem(ch, o, size = 28) {
-    const b = Math.sin(time * 3 + o.x) * 3;
-    shadow(o.x, o.y, 10);
-    emoji(ch, o.x, o.y - 4 + b, size);
-  }
-
-  function drawCat() {
-    shadow(cat.x, cat.y, 14);
-    emoji(catFed ? '😻' : '🐱', cat.x, cat.y + 2, 34);
-    if (stage === 2 && !catFed) {
-      const b = Math.sin(time * 2) * 2;
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.ellipse(cat.x + 20, cat.y - 58 + b, 20, 15, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(cat.x + 8, cat.y - 38 + b, 4, 0, Math.PI * 2); ctx.fill();
-      emoji('🐟', cat.x + 20, cat.y - 47 + b, 18);
+    // sparkles
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i];
+      s.vy -= 9 * dt;
+      s.m.position.x += s.vx * dt; s.m.position.y += s.vy * dt; s.m.position.z += s.vz * dt;
+      s.life -= dt; s.m.material.opacity = Math.max(0, s.life / 0.8);
+      if (s.life <= 0) { scene.remove(s.m); s.m.material.dispose(); sparks.splice(i, 1); }
     }
-  }
 
-  function drawCake() {
-    shadow(cake.x, cake.y, 26);
-    ctx.fillStyle = '#c08552'; ctx.fillRect(cake.x - 28, cake.y - 22, 56, 8);
-    ctx.fillRect(cake.x - 22, cake.y - 14, 5, 14); ctx.fillRect(cake.x + 17, cake.y - 14, 5, 14);
-    if (cakeLit) {
-      const g = ctx.createRadialGradient(cake.x, cake.y - 50, 4, cake.x, cake.y - 50, 50);
-      g.addColorStop(0, 'rgba(255,212,59,.55)'); g.addColorStop(1, 'rgba(255,212,59,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cake.x, cake.y - 50, 50, 0, Math.PI * 2); ctx.fill();
-    }
-    emoji('🎂', cake.x, cake.y - 18, 40);
-  }
-
-  function drawGift() {
-    const pulse = stage === 4 ? 1 + Math.sin(time * 5) * .08 : 1;
-    shadow(gift.x, gift.y, 20);
-    if (stage === 4) {
-      const g = ctx.createRadialGradient(gift.x, gift.y - 22, 4, gift.x, gift.y - 22, 60);
-      g.addColorStop(0, 'rgba(255,107,154,.5)'); g.addColorStop(1, 'rgba(255,107,154,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(gift.x, gift.y - 22, 60, 0, Math.PI * 2); ctx.fill();
-    }
-    emoji('🎁', gift.x, gift.y + 2, 42 * pulse);
-    if (stage < 4) emoji('🔒', gift.x + 18, gift.y - 26, 18);
-  }
-
-  function drawArrow() {
-    const ts = targets();
-    if (!ts.length || talking()) return;
+    // guidance
+    const ts = state === 'play' ? targets() : [];
     let best = null, bd = Infinity;
-    for (const t of ts) { const d = Math.hypot(t.x - player.x, t.y - player.y); if (d < bd) { bd = d; best = t; } }
-    if (bd < 70) return;
-    const a = Math.atan2(best.y - player.y, best.x - player.x);
-    const r = 46 + Math.sin(time * 6) * 4;
-    ctx.save();
-    ctx.translate(player.x + Math.cos(a) * r, player.y - 30 + Math.sin(a) * r);
-    ctx.rotate(a);
-    ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(-8, -9); ctx.lineTo(-4, 0); ctx.lineTo(-8, 9); ctx.closePath();
-    ctx.fillStyle = '#d6336c'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5;
-    ctx.stroke(); ctx.fill();
-    ctx.restore();
+    for (const t of ts) { const d = Math.hypot(t.x - player.x, t.z - player.z); if (d < bd) { bd = d; best = t; } }
+    marker.visible = !!best && !talking();
+    arrowPivot.visible = !!best && bd > 1.8 && !talking();
+    if (best) {
+      marker.position.set(best.x, best.my + Math.sin(time * 4) * 0.12, best.z);
+      marker.rotation.y += dt * 2;
+      arrowPivot.position.set(player.x, 0, player.z);
+      arrowPivot.rotation.y = Math.atan2(best.x - player.x, best.z - player.z);
+      arrow.material.opacity = 0.65 + Math.sin(time * 6) * 0.25;
+    }
+
+    // camera and sun follow her
+    const camD = 6.5, camH = 4;
+    const want = new THREE.Vector3(player.x + Math.sin(yaw) * camD, camH, player.z + Math.cos(yaw) * camD);
+    camera.position.lerp(want, 1 - Math.exp(-dt * 6));
+    camera.lookAt(player.x, 1.1, player.z);
+    sun.position.set(player.x + 8, 15, player.z + 6);
+    sun.target.position.set(player.x, 0, player.z);
+
+    // confetti (2D, on top)
+    if (state === 'final' && confetti.length < 160) confetti.push({
+      x: Math.random() * LW, y: -10, vy: 60 + Math.random() * 80, vx: (Math.random() - .5) * 40,
+      r: Math.random() * 6, s: 5 + Math.random() * 5,
+      c: ['#d6336c', '#f6b93b', '#74c0fc', '#69db7c', '#b197fc'][Math.floor(Math.random() * 5)]
+    });
+    for (const c of confetti) { c.y += c.vy * dt; c.x += c.vx * dt; c.r += dt * 4; if (c.y > LH + 10) { c.y = -10; c.x = Math.random() * LW; } }
   }
 
-  function draw() {
-    const camX = WW > W ? Math.max(0, Math.min(WW - W, player.x - W / 2)) : (WW - W) / 2;
-    const camY = WH > H ? Math.max(0, Math.min(WH - H, player.y - H / 2)) : (WH - H) / 2;
-    ctx.fillStyle = '#9fd4a0'; ctx.fillRect(0, 0, W, H);
-    ctx.save(); ctx.translate(-camX, -camY);
-    drawGround();
-    drawHouse();
-
-    const list = trees.map(t => ({ y: t.y, f: () => drawTree(t) }));
-    list.push({ y: player.y, f: drawGirl });
-    list.push({ y: cat.y, f: drawCat });
-    list.push({ y: cake.y, f: drawCake });
-    list.push({ y: gift.y, f: drawGift });
-    if (stage === 1) roses.forEach(r => !r.taken && list.push({ y: r.y, f: () => drawItem('🌹', r) }));
-    if (stage === 2 && !fish.taken) list.push({ y: fish.y, f: () => drawItem('🐟', fish) });
-    if (stage === 3) candles.forEach(c => !c.taken && list.push({ y: c.y, f: () => drawItem('🕯️', c) }));
-    list.sort((a, b) => a.y - b.y).forEach(o => o.f());
-
-    for (const s of sparks) {
-      ctx.globalAlpha = Math.max(0, s.life / .7); ctx.fillStyle = s.color;
-      ctx.beginPath(); ctx.arc(s.x, s.y, 3, 0, Math.PI * 2); ctx.fill();
+  function drawUI() {
+    uctx.clearRect(0, 0, LW, LH);
+    if (joy.id !== null) {
+      uctx.fillStyle = 'rgba(255,255,255,.3)'; uctx.strokeStyle = 'rgba(255,255,255,.8)'; uctx.lineWidth = 2;
+      uctx.beginPath(); uctx.arc(joy.bx, joy.by, JR, 0, PI2); uctx.fill(); uctx.stroke();
+      uctx.fillStyle = 'rgba(214,51,108,.85)';
+      uctx.beginPath(); uctx.arc(joy.bx + joy.dx, joy.by + joy.dy, 24, 0, PI2); uctx.fill();
     }
-    ctx.globalAlpha = 1;
-    if (state === 'play') drawArrow();
-    ctx.restore();
-
-    if (joy.active) {
-      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(joy.bx, joy.by, JR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'rgba(214,51,108,.8)';
-      ctx.beginPath(); ctx.arc(joy.bx + joy.dx, joy.by + joy.dy, 22, 0, Math.PI * 2); ctx.fill();
-    }
-
     for (const c of confetti) {
-      ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.r);
-      ctx.fillStyle = c.c; ctx.fillRect(-c.s / 2, -c.s / 4, c.s, c.s / 2);
-      ctx.restore();
+      uctx.save(); uctx.translate(c.x, c.y); uctx.rotate(c.r);
+      uctx.fillStyle = c.c; uctx.fillRect(-c.s / 2, -c.s / 4, c.s, c.s / 2);
+      uctx.restore();
     }
   }
 
@@ -602,7 +713,9 @@ const CONFIG = {
   function loop(t) {
     const dt = Math.min(0.033, (t - (last || t)) / 1000);
     last = t;
-    update(dt); draw();
+    update(dt);
+    renderer.render(scene, camera);
+    drawUI();
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
