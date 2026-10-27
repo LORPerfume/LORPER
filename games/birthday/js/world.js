@@ -362,7 +362,8 @@ G.buildWorld = function () {
   W.mapRects.push({ x0: -1.7, x1: 1.7, z0: -44, z1: -17, c: '#e9d9bf' }, { x0: -15, x1: 15, z0: -32.5, z1: -29.5, c: '#e9d9bf' });
   // hedges
   function hedge(zid, x0, x1, z0, z1, h = 1.6) {
-    box(scene, x1 - x0, h, z1 - z0, '#4e8c4a', (x0 + x1) / 2, h / 2, (z0 + z1) / 2, { cast: true, receive: true });
+    const hm = box(scene, x1 - x0, h, z1 - z0, '#4e8c4a', (x0 + x1) / 2, h / 2, (z0 + z1) / 2, { cast: true, receive: true });
+    if (h >= 2) W.occluders.push(hm);
     return solid(zid, x0, x1, z0, z1, 'hedge');
   }
   hedge('city', -22.5, -22, -44, -17); hedge('city', 22, 22.5, -44, -17);
@@ -448,6 +449,18 @@ G.buildWorld = function () {
     solidC('city', x, z, 0.5);
     W.easels.push({ group: e, pic });
   });
+  // photo wall at the back of the garden (10 more frames)
+  W.occluders.push(box(scene, 20.5, 3.6, 0.3, '#f4ead9', 0, 1.9, -65.7, { cast: true }));
+  box(scene, 20.9, 0.25, 0.4, '#c9a227', 0, 3.8, -65.7);
+  for (let i = 0; i < 10; i++) {
+    const x = -8 + (i % 5) * 4, y = i < 5 ? 2.75 : 1.15;
+    const fr = new THREE.Group(); fr.position.set(x, 0, -65.5); scene.add(fr);
+    box(fr, 1.9, 1.45, 0.08, '#c9a227', 0, y, 0);
+    const pic = mesh(fr, new THREE.PlaneGeometry(1.75, 1.3), new THREE.MeshBasicMaterial({ color: '#555' }), 0, y, 0.05);
+    W.easels.push({ group: fr, pic });
+  }
+  solid('city', -10.3, 10.3, -66, -65.4);
+
   // seven letters floating in a ring
   const envTex = canvas(128, 96, (g) => { g.fillStyle = '#fff8f2'; g.fillRect(0, 0, 128, 96); g.strokeStyle = '#c2185b'; g.lineWidth = 4; g.strokeRect(4, 4, 120, 88); g.beginPath(); g.moveTo(4, 4); g.lineTo(64, 52); g.lineTo(124, 4); g.stroke(); g.fillStyle = '#c2185b'; g.beginPath(); g.arc(64, 52, 10, 0, PI2); g.fill(); });
   W.gardenLetters = [];
@@ -537,6 +550,10 @@ G.buildWorld = function () {
   point('npc_guard', 4.2, -42.4);
   point('npc_cat', 31, 24.5);
   point('cafeTerrace', -22.5, -4.4);
+  // extra memory spots
+  [['towerBack', 0, -2.7], ['sweetsFront', -18.2, 4.5], ['restaurantFront', 17.5, -4.4], ['boutiqueFront', 33.2, -4.5], ['arcadeFront', 15.5, 4.4],
+   ['westEnd', -43, 0], ['eastEnd', 43, 0], ['southStreet', -4.6, 33.5], ['yard', 21.5, 22], ['gazebo', -12, -36], ['parkNorth', -15, -42.2], ['parkWest', -16, -26.5]]
+    .forEach(([n, x, z]) => point(n, x, z));
   point('start', 0, 8.5);
   // cafe terrace tables
   [[-23.5, -4.5], [-20.5, -4.5]].forEach(([x, z]) => {

@@ -199,6 +199,7 @@
 
   // ---------------- world props controlled by state ----------------
   const props = {};
+  const GATED = ['alley', 'yard'];
   function makeProps() {
     // hidden cafe note
     const np = pt('cafe_note');
@@ -405,11 +406,11 @@
     itemAct('cafe_counter', 'cafe_counter', () => 'اختاري المشروب', () => Q.is('cafe', 'active') && Q.objDone('cafe', 'cup') && Q.objDone('cafe', 'dessert') && Q.objDone('cafe', 'note'), cafeDrink, '☕');
     async function cafeDrink() {
       await say('barista', lines('barista', 'ready'));
-      const i = await UI.choose('barista', 'شو مشروبك المفضّل؟', C.cafe.drinks);
+      const i = await UI.choose('barista', C.cafe.question || 'شو مشروبك المفضّل؟', C.cafe.drinks);
       if (i < 0) return;
       if (i === C.cafe.correct) {
         G.audio.success();
-        await say('barista', [`${C.cafe.drinks[i]}! كنت متأكد ☕💛`, 'هاي الرسالة الأولى إلك… ومعها رمز سري صغير.']);
+        await say('barista', [`${C.cafe.drinks[i]}! بتعرفيه منيح ☕💛`, 'هاي الرسالة الأولى إلك… ومعها رمز سري صغير.']);
         Q.progress('cafe', 'drink');
         const p = game.playerPos(); burst(p.x, 1.6, p.z, 'heart', 18);
         await say(null, ['💌 ' + G.fmt(C.letters[0])]);
@@ -630,7 +631,7 @@
 
     // ---- memories ----
     props.memories.forEach((pm, i) => act({ id: 'mem_' + pm.m.id, zoneOf: () => 'city', pos: () => pm, r: 1.6, icon: '📸', label: () => 'في إشي بيلمع هون…',
-      show: () => !G.save.data.photos.includes(pm.m.id) && Q.done('welcome') && (pm.m.spot !== 'alley' || G.flags.get('alleyOpen')),
+      show: () => !G.save.data.photos.includes(pm.m.id) && Q.done('welcome') && (!GATED.includes(pm.m.spot) || G.flags.get('alleyOpen')),
       run: async () => {
         G.save.data.photos.push(pm.m.id); G.save.write();
         G.audio.unlock(); burst(pm.x, 1.4, pm.z, 'star', 14);
@@ -1126,7 +1127,7 @@
     W.paws.forEach((p, i) => { p.visible = G.flags.get('alleyOpen') && !Q.done('cat') && Q.objCount('cat', 'paws') >= i; });
     props.cafeNote.visible = Q.is('cafe', 'active') && Q.objDone('cafe', 'talk') && !Q.objDone('cafe', 'note');
     props.memories.forEach(pm => {
-      const vis = P.zone === 'city' && !G.save.data.photos.includes(pm.m.id) && (pm.m.spot !== 'alley' || G.flags.get('alleyOpen'));
+      const vis = P.zone === 'city' && !G.save.data.photos.includes(pm.m.id) && (!GATED.includes(pm.m.spot) || G.flags.get('alleyOpen'));
       const d = Math.hypot(pm.x - P.x, pm.z - P.z);
       pm.s.visible = vis && (d < 9 || G.inv.has('secretMap'));
       pm.s.material.opacity = 0.55 + Math.sin(t * 4 + pm.x) * 0.35;
@@ -1352,7 +1353,7 @@
     $('loading').hidden = true;
     requestAnimationFrame(loop);
     // QA hook (used by automated tests; harmless for players)
-    game.debug = { P, acts, npcs, pt, setPos: (x, z, zoneId = P.zone) => { P.zone = zoneId; W.inRoom = zoneId === 'city' ? null : zoneId; P.x = x; P.z = z; W.applyTime(W.tod); snapCamera(); }, act: () => doAction(), current: () => current && current.id, taxi, starsGame, taxiGame, enterShop, exitShop, info: () => ({ calls: renderer.info.render.calls, tris: renderer.info.render.triangles, geos: renderer.info.memory.geometries, tex: renderer.info.memory.textures }) };
+    game.debug = { P, acts, npcs, pt, setYaw: v => { yaw = v; snapCamera(); }, setPos: (x, z, zoneId = P.zone) => { P.zone = zoneId; W.inRoom = zoneId === 'city' ? null : zoneId; P.x = x; P.z = z; W.applyTime(W.tod); snapCamera(); }, act: () => doAction(), current: () => current && current.id, taxi, starsGame, taxiGame, enterShop, exitShop, info: () => ({ calls: renderer.info.render.calls, tris: renderer.info.render.triangles, geos: renderer.info.memory.geometries, tex: renderer.info.memory.textures }) };
   }
   boot().catch(err => {
     console.error(err);

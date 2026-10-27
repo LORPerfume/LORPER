@@ -3,6 +3,12 @@
   const C = window.GAME_CONFIG;
   const G = window.G = { C };
 
+  // counts that follow the content
+  const fixCount = (qid, oid, n) => { const q = C.quests.find(x => x.id === qid); const o = q && q.objectives.find(x => x.id === oid); if (o && n > 0) o.count = n; };
+  fixCount('album', 'photos', C.memories.length);
+  fixCount('quiz', 'answer', C.quiz.length);
+  fixCount('letters', 'collect', C.letters.length);
+
   // ---------- text ----------
   G.vars = {
     bouquetHint: C.flowers.hint,
