@@ -1,5 +1,2 @@
 node_modules
 .env
-games/birthday/assets/face.png
-games/birthday/assets/photos/*
-!games/birthday/assets/photos/.gitkeep
