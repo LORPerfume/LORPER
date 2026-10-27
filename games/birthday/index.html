@@ -71,6 +71,7 @@
     animation: pop .35s ease-out;
   }
   .card .emoji { font-size: 3.4rem; line-height: 1; }
+  .card .portrait { width: 96px; height: auto; filter: drop-shadow(0 4px 10px rgba(166, 30, 77, .3)); }
   .card h1 { font-family: var(--display); font-weight: 400; font-size: 2.4rem; line-height: 1.15; margin: 0; color: var(--rasp); text-wrap: balance; }
   .card p { margin: 0; font-size: 1.1rem; line-height: 1.7; color: var(--ink); }
   .card .from { color: var(--muted); font-size: 1rem; }
@@ -97,7 +98,7 @@
 
 <div class="overlay" id="startScreen">
   <div class="card">
-    <div class="emoji">🎂</div>
+    <img class="portrait" src="face.png" alt="" onerror="this.hidden=true">
     <h1 id="startTitle"></h1>
     <p>في هدية مستنياكِ آخر الطريق. خلّصي المهام لتوصليلها.</p>
     <button id="startBtn">يلا نبلّش</button>
