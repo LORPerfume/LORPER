@@ -15,6 +15,7 @@
     rotated = SH > SW;
     LW = rotated ? SH : SW; LH = rotated ? SW : SH;
     stageEl.style.width = LW + 'px'; stageEl.style.height = LH + 'px';
+    stageEl.style.setProperty('--stage-h', LH + 'px');
     stageEl.style.transform = rotated ? `translate(${SW}px,0) rotate(90deg)` : 'none';
     if (renderer) { renderer.setSize(LW, LH, false); camera.aspect = LW / LH; camera.updateProjectionMatrix(); }
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
