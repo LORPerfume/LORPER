@@ -8,7 +8,7 @@ window.GAME_CONFIG = {
   /* ---------- الأساسيات ---------- */
   gameTitle: 'مدينة الياسمين',
   cityName: 'مدينة الياسمين',
-  herName: 'حبيبتي',                 // اسمها أو الدلع
+  herName: 'نور',                     // اسمها أو الدلع
   fromName: 'زوجك اللي بحبك',        // توقيعك
   faceImage: 'assets/face.png',      // صورة وجهها (بتطلع على راس الشخصية)
   openingLines: [
