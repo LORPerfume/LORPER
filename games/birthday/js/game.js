@@ -113,35 +113,53 @@
   // her
   const her = {};
   function makeHer() {
-    her.g = new THREE.Group(); scene.add(her.g);
+    her.g = new THREE.Group(); her.g.scale.setScalar(1.2); scene.add(her.g);
     her.body = new THREE.Group(); her.g.add(her.body);
-    const lam = c => new THREE.MeshLambertMaterial({ color: c });
-    her.dressMat = lam('#fbf8f4'); her.jacketMat = lam('#1f1a24'); her.hijabMat = lam('#d8cfc4');
-    her.jacketMat.side = THREE.DoubleSide;
-    const m = (geo, mat, x, y, z) => { const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); o.castShadow = true; her.body.add(o); return o; };
-    m(new THREE.CylinderGeometry(0.24, 0.42, 1.0, 18), her.dressMat, 0, 0.5, 0);
-    m(new THREE.CylinderGeometry(0.27, 0.38, 0.78, 18, 1, true, 0.55, PI2 - 1.1), her.jacketMat, 0, 0.72, 0);
-    m(new THREE.CylinderGeometry(0.13, 0.37, 0.36, 18), her.hijabMat, 0, 1.17, 0);
+    const lam = (c, o) => new THREE.MeshLambertMaterial(Object.assign({ color: c }, o || {}));
+    her.dressMat = lam('#fbf8f4'); her.jacketMat = lam('#1f1a24', { side: THREE.DoubleSide }); her.hijabMat = lam('#d8cfc4', { side: THREE.DoubleSide });
+    const skinMat = lam('#f2cdb4'), shoeMat = lam('#2b1a1f'), gold = lam('#e0a93b', { emissive: '#5a3a00', emissiveIntensity: 0.4 });
+    const V = (r, y) => new THREE.Vector2(r, y);
+    const add = (parent, geo, mat, x = 0, y = 0, z = 0) => { const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); o.castShadow = true; parent.add(o); return o; };
+    // long skirt that sways while she walks
+    her.skirt = new THREE.Group(); her.skirt.position.y = 0.98; her.body.add(her.skirt);
+    add(her.skirt, new THREE.LatheGeometry([V(0.395, -0.94), V(0.37, -0.8), V(0.32, -0.55), V(0.26, -0.28), V(0.215, -0.06), V(0.205, 0)], 28), her.dressMat);
+    add(her.skirt, new THREE.RingGeometry(0.33, 0.395, 28), her.dressMat, 0, -0.935, 0).rotation.x = PI / 2;
+    // bodice with a soft shape
+    add(her.body, new THREE.LatheGeometry([V(0.205, 0.98), V(0.225, 1.06), V(0.228, 1.16), V(0.215, 1.26), V(0.18, 1.34), V(0.1, 1.4), V(0.06, 1.42)], 24), her.dressMat);
+    // open jacket (front left open)
+    add(her.body, new THREE.LatheGeometry([V(0.25, 0.6), V(0.262, 0.8), V(0.245, 1.0), V(0.25, 1.14), V(0.235, 1.27), V(0.2, 1.35), V(0.12, 1.4)], 28, 0.42, PI2 - 0.84), her.jacketMat);
+    // hijab: cape over the shoulders and chest, plus the back of the head
+    add(her.body, new THREE.LatheGeometry([V(0.08, 1.56), V(0.13, 1.48), V(0.2, 1.41), V(0.255, 1.34), V(0.27, 1.25), V(0.25, 1.17)], 28), her.hijabMat);
+    const back = add(her.body, new THREE.SphereGeometry(0.2, 18, 14), her.hijabMat, 0, 1.64, -0.05); back.scale.set(1, 1.12, 0.95);
+    // shoes peek out under the hem
+    her.shoes = [-1, 1].map(s => { const sh = add(her.g, new THREE.SphereGeometry(0.07, 10, 8), shoeMat, 0.09 * s, 0.04, 0.06); sh.scale.set(0.8, 0.55, 1.5); return sh; });
+    // arms: shoulder → elbow → hand
     her.arms = [-1, 1].map(s => {
-      const p = new THREE.Group(); p.position.set(0.34 * s, 1.1, 0); her.body.add(p);
-      const a = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.06, 0.55, 8), her.jacketMat); a.position.y = -0.27; a.castShadow = true; p.add(a);
-      W.sph(p, 0.06, '#f2cdb4', 0, -0.57, 0);
-      return p;
+      const sh = new THREE.Group(); sh.position.set(0.255 * s, 1.31, 0); sh.rotation.z = 0.1 * s; her.body.add(sh);
+      add(sh, new THREE.CylinderGeometry(0.058, 0.052, 0.31, 10), her.jacketMat, 0, -0.155, 0);
+      add(sh, new THREE.SphereGeometry(0.058, 10, 8), her.jacketMat);
+      const el = new THREE.Group(); el.position.y = -0.31; el.rotation.x = -0.35; sh.add(el);
+      add(el, new THREE.CylinderGeometry(0.051, 0.045, 0.27, 10), her.jacketMat, 0, -0.135, 0);
+      add(el, new THREE.SphereGeometry(0.046, 10, 8), skinMat, 0, -0.29, 0).scale.set(0.9, 1.15, 0.8);
+      sh.elbow = el;
+      return sh;
     });
     her.acc = {
-      necklace: W.sph(her.body, 0.05, '#e0a93b', 0, 1.12, 0.3),
-      brooch: W.sph(her.body, 0.05, '#e0a93b', 0.16, 0.95, 0.31),
+      necklace: add(her.body, new THREE.SphereGeometry(0.03, 8, 6), gold, 0, 1.2, 0.235),
+      brooch: add(her.body, new THREE.SphereGeometry(0.04, 8, 6), gold, 0.15, 1.1, 0.24),
     };
-    const necklace = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.015, 6, 20), new THREE.MeshLambertMaterial({ color: '#e0a93b', emissive: '#5a3a00', emissiveIntensity: 0.4 }));
-    necklace.rotation.x = PI / 2.3; necklace.position.set(0, 1.18, 0.08); her.body.add(necklace);
-    her.acc.necklace2 = necklace;
-    const crown = new THREE.Group(); crown.position.y = 2.12; her.g.add(crown);
-    W.cyl(crown, 0.16, 0.16, 0.08, 10, '#e0a93b', 0, 0, 0);
-    for (let i = 0; i < 5; i++) { const a = i / 5 * PI2; W.cyl(crown, 0.001, 0.035, 0.1, 4, '#e0a93b', Math.cos(a) * 0.15, 0.08, Math.sin(a) * 0.15); }
+    const chain = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.008, 6, 24, PI), gold);
+    chain.rotation.set(PI / 2 + 0.5, 0, PI); chain.position.set(0, 1.3, 0.1); her.body.add(chain);
+    her.acc.necklace2 = new THREE.Group(); her.acc.necklace2.add(chain); her.body.add(her.acc.necklace2);
+    her.acc.necklace2.add(her.acc.necklace);
+    const crown = new THREE.Group(); crown.position.y = 2.0; her.g.add(crown);
+    W.cyl(crown, 0.13, 0.13, 0.06, 12, gold, 0, 0, 0);
+    for (let i = 0; i < 5; i++) { const a = i / 5 * PI2; W.cyl(crown, 0.001, 0.03, 0.09, 4, gold, Math.cos(a) * 0.12, 0.07, Math.sin(a) * 0.12); }
     her.acc.crown = crown;
+    // face (her photo) — always turned to the camera so she is recognisable
     her.headMat = new THREE.SpriteMaterial({ transparent: true, fog: false });
-    her.head = new THREE.Sprite(her.headMat); her.head.scale.set(0.64, 0.92, 1); her.head.position.y = 1.62; her.g.add(her.head);
-    new THREE.TextureLoader().load(C.faceImage, t => { her.headMat.map = t; her.headMat.needsUpdate = true; }, undefined, () => {
+    her.head = new THREE.Sprite(her.headMat); her.head.scale.set(0.5, 0.72, 1); her.head.position.y = 1.66; her.g.add(her.head);
+    new THREE.TextureLoader().load(C.faceImage, t => { t.anisotropy = 4; her.headMat.map = t; her.headMat.needsUpdate = true; }, undefined, () => {
       her.headMat.map = W.canvasTex(180, 260, (g) => {
         g.fillStyle = '#d8cfc4'; g.beginPath(); g.ellipse(90, 130, 88, 128, 0, 0, PI2); g.fill();
         g.fillStyle = '#f2cdb4'; g.beginPath(); g.ellipse(90, 145, 60, 80, 0, 0, PI2); g.fill();
@@ -150,15 +168,15 @@
       });
       her.headMat.needsUpdate = true;
     });
-    // things she carries
-    her.carry = new THREE.Group(); her.carry.position.set(0, -0.62, 0.12); her.arms[1].add(her.carry);
+    // things she carries sit in her right hand
+    her.carry = new THREE.Group(); her.carry.position.set(0, -0.33, 0.06); her.arms[1].elbow.add(her.carry);
   }
   game.setOutfit = function (id) {
     if (!C.items[id] || (id !== 'outfitDefault' && !G.inv.has(id))) id = 'outfitDefault';
     G.save.data.outfit = id; G.save.write();
     const o = id === 'outfitGala' ? C.clothes.outfits[C.clothes.correct] : { dress: '#fbf8f4', jacket: '#1f1a24', hijab: '#d8cfc4', accessory: null };
     her.dressMat.color.set(o.dress); her.jacketMat.color.set(o.jacket); her.hijabMat.color.set(o.hijab);
-    her.acc.necklace.visible = false; her.acc.brooch.visible = o.accessory === 'brooch';
+    her.acc.brooch.visible = o.accessory === 'brooch';
     her.acc.necklace2.visible = o.accessory === 'necklace'; her.acc.crown.visible = o.accessory === 'crown';
   };
 
@@ -1000,13 +1018,13 @@
     if (P.zone !== 'city') {
       const r = W.rooms[P.zone];
       const relX = Math.max(-r.w / 2, Math.min(r.w / 2, P.x - r.ox));
-      out.set(r.ox + relX * 0.45, 7.4, r.d / 2 + 4.6 + P.z * 0.15);
-      lookOut.set(r.ox + relX * 0.75, 0.6, P.z * 0.55 - 0.4);
+      out.set(P.x * 0.7 + (r.ox + relX * 0.45) * 0.3, 5.0, Math.min(r.d / 2 + 3.2, P.z + 5.2));
+      lookOut.set(P.x, 0.9, P.z - 0.6);
       return;
     }
     const tx = P.inTaxi ? taxi.x : P.x, tz = P.inTaxi ? taxi.z : P.z;
-    const dist = P.inTaxi ? 9 : 7, h = P.inTaxi ? 4.8 : 4.4;
-    lookOut.set(tx, P.inTaxi ? 1.2 : 1.5, tz);
+    const dist = P.inTaxi ? 9 : 5.2, h = P.inTaxi ? 4.8 : 3.3;
+    lookOut.set(tx, P.inTaxi ? 1.2 : 1.45, tz);
     out.set(tx + Math.sin(yaw) * dist, h, tz + Math.cos(yaw) * dist);
     // keep the camera out of buildings
     rayDir.copy(out).sub(lookOut); const len = rayDir.length(); rayDir.normalize();
@@ -1102,7 +1120,14 @@
     const swing = P.moving ? Math.sin(P.walk) : 0;
     const bob = P.moving ? Math.abs(Math.sin(P.walk)) * 0.07 : Math.sin(t * 2) * 0.012;
     her.g.position.set(P.x, bob, P.z);
-    her.arms[0].rotation.x = swing * 0.6; her.arms[1].rotation.x = -swing * 0.6;
+    her.arms[0].rotation.x = swing * 0.55; her.arms[1].rotation.x = -swing * 0.55;
+    her.arms.forEach((a, i) => { a.elbow.rotation.x = -0.35 - (P.moving ? Math.max(0, (i ? -swing : swing)) * 0.4 : 0); });
+    her.skirt.rotation.x = P.moving ? Math.sin(P.walk * 2) * 0.03 : 0; her.skirt.rotation.z = swing * 0.04;
+    her.shoes[0].position.z = 0.06 + swing * 0.14; her.shoes[1].position.z = 0.06 - swing * 0.14;
+    her.shoes.forEach(s => { s.rotation.y = her.body.rotation.y; s.position.x = 0; });
+    her.shoes.forEach((s, i) => { const side = i ? 1 : -1, a = her.body.rotation.y, fz = s.position.z; s.position.set(Math.cos(a) * 0.09 * side + Math.sin(a) * fz, 0.04, -Math.sin(a) * 0.09 * side + Math.cos(a) * fz); });
+    // keep her photo-face in front of the 3D hijab from any camera angle
+    { const dx = camera.position.x - P.x, dz = camera.position.z - P.z, L = Math.hypot(dx, dz) || 1; her.head.position.set(dx / L * 0.24 / 1.2, 1.66, dz / L * 0.24 / 1.2); }
     props.carryCup.visible = Q.is('cafe', 'active') && Q.objDone('cafe', 'cup') && !Q.objDone('cafe', 'drink');
     props.carryCake.visible = Q.is('cafe', 'active') && Q.objDone('cafe', 'dessert') && !Q.objDone('cafe', 'drink') && !props.carryCup.visible;
 
